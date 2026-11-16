@@ -100,7 +100,14 @@ input, textarea { font: inherit; color: inherit; }
 .mhead { padding: 12px 40px 0; border-bottom: 1px solid var(--borde); flex: none; }
 .mbar { display: flex; align-items: center; gap: 12px; height: 40px; }
 .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px; letter-spacing: -0.01em; }
-.logo-mark { width: 22px; height: 22px; border-radius: 6px; background: var(--naranja); }
+.logo-mark { width: 22px; height: 22px; border-radius: 6px; background: var(--texto); }
+.notif-mark { width: 28px; height: 28px; border-radius: 8px; background: #fff; position: relative; flex: none; }
+.notif-mark::after { content: ""; position: absolute; left: 6px; right: 6px; top: 13px; height: 2.5px; border-radius: 2px; background: var(--naranja); }
+.term { text-decoration: underline dotted; text-decoration-thickness: 1.5px; text-underline-offset: 3px; text-decoration-color: var(--texto-3); cursor: help; }
+.term:focus-visible { outline: none; background: var(--suave); border-radius: 3px; }
+.tip { position: fixed; z-index: 100; width: 300px; transform: translateY(-100%); background: var(--texto); color: #c9ccd2; border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.45; box-shadow: 0 16px 32px -12px rgba(0,0,0,.4); pointer-events: none; animation: pop .15s ease-out both; text-align: left; font-weight: 400; }
+.tip.below { transform: none; }
+.tip b { display: block; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
 .sep { width: 1px; height: 18px; background: var(--borde-fuerte); }
 .spacer { flex: 1; }
 .stages { display: grid; gap: 8px; padding: 10px 0 12px; }

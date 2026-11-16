@@ -1,5 +1,6 @@
 import { Eye } from 'lucide-react';
 import { Chips, Options, TextArea, TextField } from './ui.jsx';
+import { G } from './glossary.jsx';
 
 export const STAGES = ['Tu empresa', 'Tu cobro', 'Tu realidad'];
 
@@ -57,7 +58,7 @@ export const initialAnswers = {
 };
 
 const leido = (a) => (a.presencia === 'Tengo sitio web' || a.presencia === 'Solo redes sociales') && a.sitio.trim().length > 2;
-const Q = ({ title, sub }) => (<><h1 className="t-l q-title">{title}</h1><p className="t-body q-sub">{sub}</p></>);
+const Q = ({ title, sub }) => (<><h1 className="t-l q-title">{title}</h1><p className="t-body q-sub"><G>{sub}</G></p></>);
 const Gap = ({ s = 'l' }) => <div className={`gap-${s}`} />;
 
 export const STEPS = [
@@ -162,7 +163,7 @@ export const STEPS = [
       <Gap />
       <div className="block-label">El cobro es · puedes marcar varias</div>
       <Options multi cols={3} value={a.cuando} onChange={(v) => set({ cuando: v })} options={CUANDO} />
-      {(a.quien === 'Empresas' || a.quien === 'A las dos') && <p className="t-help pop" style={{ marginTop: 14 }}>Como cobras a empresas, te pediremos la orden de compra o HES cuando corresponda.</p>}
+      {(a.quien === 'Empresas' || a.quien === 'A las dos') && <p className="t-help pop" style={{ marginTop: 14 }}><G>Como cobras a empresas, te pediremos la orden de compra o HES cuando corresponda.</G></p>}
     </>),
   },
   {

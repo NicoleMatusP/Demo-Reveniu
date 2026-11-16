@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
+import { G } from './glossary.jsx';
 
 /** Escala para que el diseño (pensado para 800 px de alto) nunca tenga scroll. */
 export function useFit(designH = 800, designW = 0) {
@@ -28,7 +29,7 @@ export function TextField({ label, help, value, onChange, placeholder, autoFocus
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => { if (e.key === 'Enter' && onEnter) onEnter(); }}
       />
-      {(error || help) && <span className="t-help" style={error ? { color: 'var(--late-texto)' } : null}>{error || help}</span>}
+      {(error || help) && <span className="t-help" style={error ? { color: 'var(--late-texto)' } : null}><G>{error || help}</G></span>}
     </label>
   );
 }
@@ -41,7 +42,7 @@ export function TextArea({ label, help, value, onChange, placeholder, max = 280,
         <textarea className="textarea" rows={rows} value={value} maxLength={max} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
         <span className="counter">{value.length}/{max}</span>
       </div>
-      {help && <span className="t-help">{help}</span>}
+      {help && <span className="t-help"><G>{help}</G></span>}
     </label>
   );
 }
@@ -85,8 +86,8 @@ export function Options({ options, value, onChange, multi = false, cols = 2 }) {
           <button key={o.t} type="button" className={`opt${on ? ' on' : ''}`} onClick={() => toggle(o.t)} aria-pressed={on} style={o.full ? { gridColumn: '1 / -1' } : null}>
             <span className={`mark ${multi ? 'check' : 'radio'}`}>{multi && on && <Check size={12} color="#fff" strokeWidth={3} />}</span>
             <span>
-              <span className="opt-t" style={{ display: 'block' }}>{o.t}</span>
-              {o.d && <span className="opt-d" style={{ display: 'block' }}>{o.d}</span>}
+              <span className="opt-t" style={{ display: 'block' }}><G>{o.t}</G></span>
+              {o.d && <span className="opt-d" style={{ display: 'block' }}><G>{o.d}</G></span>}
             </span>
           </button>
         );
@@ -116,7 +117,7 @@ export function FakeApp({ name }) {
     <div className="bg-app" aria-hidden>
       <div style={{ display: 'flex', height: '100%', background: '#fbfbfc' }}>
         <div style={{ width: 72, background: '#fff', borderRight: '1px solid #e8ebef', padding: 20 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: '#ff5b2e' }} />
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: '#0d0e10' }} />
         </div>
         <div style={{ flex: 1, padding: '84px 40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div style={{ fontSize: 36, fontWeight: 600 }}>Hola, {name || 'Camila'}</div>

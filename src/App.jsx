@@ -3,6 +3,7 @@ import { Check, Mail, Pencil, Link2, Sparkles, Globe, ChevronRight, Package, Use
 import { FakeApp, Logo, Ring, TextArea, TextField, useFit } from './ui.jsx';
 import { STAGES, STEPS, initialAnswers, usuariosDe, TOTAL_PREGUNTAS } from './steps.jsx';
 import Assistant from './Assistant.jsx';
+import { G } from './glossary.jsx';
 import Moderador from './Moderador.jsx';
 import { enterStep, finishSession, startSession, track, leaveStep } from './metrics.js';
 
@@ -155,7 +156,7 @@ function BrandPanel({ title, sub }) {
         <p style={{ marginTop: 20, fontSize: 18, opacity: .85, maxWidth: 440 }}>{sub}</p>
       </div>
       <div className="notif">
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 13, opacity: .9 }}><span className="logo-mark" style={{ width: 28, height: 28, borderRadius: 8 }} />Recuperado · hoy 10:42</div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 13, opacity: .9 }}><span className="notif-mark" />Recuperado · hoy 10:42</div>
         <div style={{ fontSize: 22, fontWeight: 600 }}>Recuperaste $45.000 de Marta R.</div>
       </div>
       <p style={{ position: 'relative', marginTop: 20, fontSize: 13, opacity: .7 }}>Hecho en Chile · seis años cobrando en pesos, UF y PAC</p>
@@ -179,7 +180,7 @@ function Registro({ user, setUser, onDone }) {
         <Logo />
         <form className="auth-inner" onSubmit={(e) => { e.preventDefault(); submit(); }}>
           <h1 className="t-l">Crea tu cuenta gratis.</h1>
-          <p className="t-small">Dos minutos. Partes en modo prueba, sin tarjeta, y activas cobros reales cuando valides tu empresa.</p>
+          <p className="t-small"><G>Dos minutos. Partes en modo prueba, sin tarjeta, y activas cobros reales cuando valides tu empresa.</G></p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <TextField label="Nombre" value={user.nombre} onChange={u('nombre')} autoFocus error={tried && err.nombre} />
             <TextField label="Apellido" value={user.apellido} onChange={u('apellido')} />
@@ -241,7 +242,7 @@ function Bienvenida({ name, onStart, onLater }) {
       <div className="center-card fade-in" style={{ width: 'min(640px,100%)' }}>
         <span className="tag ok">Cuenta creada · modo prueba</span>
         <h1 className="t-l">Hola, {name || 'hola'}. Qué bueno tenerte aquí.</h1>
-        <p className="t-body">Necesitamos dos minutos de tu tiempo. Con unas pocas preguntas configuramos Reveniu para tu negocio: tu forma de cobrar, tu marca y tus agentes.</p>
+        <p className="t-body"><G>Necesitamos dos minutos de tu tiempo. Con unas pocas preguntas configuramos Reveniu para tu negocio: tu forma de cobrar, tu marca y tus agentes.</G></p>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <button className="btn btn-primary" onClick={onStart}>Empecemos</button>
           <button className="btn btn-text" onClick={onLater}>Prefiero hacerlo después</button>
@@ -355,14 +356,14 @@ function Ficha({ a, loading, onLoaded, onEdit }) {
                 <span className="t-help" style={{ flex: 1 }}>{l}</span>
                 {loading ? (k < n ? <Check size={14} color="var(--ok-texto)" /> : null) : <button aria-label={`Editar ${l}`} onClick={() => onEdit(i)}><Pencil size={14} color="var(--texto-3)" /></button>}
               </div>
-              {loading && k >= n ? (<><div className="skeleton" style={{ width: '60%', height: 12, marginTop: 6 }} /><div className="skeleton" style={{ width: '85%', marginTop: 8 }} /></>) : (<><span className="t-label pop" style={{ fontSize: 15 }}>{v}</span><span className="t-help pop">{d}</span></>)}
+              {loading && k >= n ? (<><div className="skeleton" style={{ width: '60%', height: 12, marginTop: 6 }} /><div className="skeleton" style={{ width: '85%', marginTop: 8 }} /></>) : (<><span className="t-label pop" style={{ fontSize: 15 }}>{v}</span><span className="t-help pop"><G>{d}</G></span></>)}
             </div>
           ))}
         </div>
         <div className="ficha-foot">
           {loading ? (<><Ring pct={Math.min(n, 6) / 6} size={20} stroke={3} color="var(--texto)"><span /></Ring><span style={{ flex: 1 }}>{n < 6 ? `Ordenando ${datos[Math.min(n, 5)][0].toLowerCase()}…` : 'Listo'}</span><span className="t-help">{Math.min(n, 6)} de 6</span></>) : (<>
             <Sparkles size={16} color="var(--agente-texto)" />
-            <span style={{ flex: 1 }}>Activaremos Recovery para reintentar cobros e Inbox para responder a tus {usuarios.toLowerCase()}.</span>
+            <span style={{ flex: 1 }}><G>{`Tus agentes: Recovery para reintentar cobros e Inbox para responder a tus ${usuarios.toLowerCase()}.`}</G></span>
             <span className="tag agent">Recovery</span><span className="tag agent">Inbox</span>
           </>)}
         </div>
@@ -391,7 +392,7 @@ function Lista({ a, name, onEnd }) {
         <div style={{ height: 28 }} />
         <div className="logros">
           {[[Package, a.productos.length > 1 ? `${a.productos.length} productos` : (a.productos.length ? '1 producto' : 'Tu catálogo'), a.productos.length ? 'en tu catálogo' : 'listo para tus planes'], [Sparkles, '2 agentes', 'listos para trabajar'], [Users, 'Tu portal', `para tus ${usuariosDe(a).toLowerCase()}`]].map(([I, t, d]) => (
-            <div key={t} className="logro"><div style={{ width: 32, height: 32, borderRadius: 10, background: '#fff', display: 'grid', placeItems: 'center', marginBottom: 8 }}><I size={18} color={t === '2 agentes' ? 'var(--agente-texto)' : 'var(--texto)'} /></div><span className="t-label">{t}</span><span className="t-help">{d}</span></div>
+            <div key={t} className="logro"><div style={{ width: 32, height: 32, borderRadius: 10, background: '#fff', display: 'grid', placeItems: 'center', marginBottom: 8 }}><I size={18} color={t === '2 agentes' ? 'var(--agente-texto)' : 'var(--texto)'} /></div><span className="t-label">{t}</span><span className="t-help"><G>{d}</G></span></div>
           ))}
         </div>
         <div style={{ height: 16 }} />
