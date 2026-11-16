@@ -16,6 +16,7 @@ export default function App() {
   const [idx, setIdx] = useState(0);
   const [help, setHelp] = useState(false);
   const [review, setReview] = useState(false);
+  const [edit, setEdit] = useState(null);
   const set = (patch) => setA((p) => ({ ...p, ...patch }));
 
   useEffect(() => {
@@ -25,8 +26,8 @@ export default function App() {
   }, []);
 
   // Registro de tiempos por pantalla
-  const stepKey = screen === 'alta' ? (review ? 'revisar-sitio' : STEPS[idx].id) : screen;
-  const stepTitle = screen === 'alta' ? (review ? '¿Es esto correcto? (revisar sitio)' : STEPS[idx].title) : TITLES[screen];
+  const stepKey = screen === 'alta' ? (review ? 'revisar-sitio' : STEPS[idx].id) : screen === 'ficha' && edit ? `editar-${STEPS[edit.i].id}` : screen;
+  const stepTitle = screen === 'alta' ? (review ? '¿Es esto correcto? (revisar sitio)' : STEPS[idx].title) : screen === 'ficha' && edit ? `Editar desde la ficha · ${STEPS[edit.i].title}` : TITLES[screen];
   useEffect(() => { if (screen !== 'inicio' && screen !== 'fin') enterStep(stepKey, stepTitle); }, [stepKey]); // eslint-disable-line
   useEffect(() => { if (screen === 'alta') STEPS[idx].onEnter?.(a, set); }, [idx, screen]); // eslint-disable-line
 
@@ -76,7 +77,10 @@ export default function App() {
     </Shell>;
     case 'ficha': return <Shell name={user.nombre} stageIdx={2} fill={1} wide onHelp={() => { track('ayuda', 'ficha'); setHelp(true); }} onExit={() => go('pausa')} help={help} closeHelp={() => setHelp(false)} helpCtx={['Esto es lo que entendimos', 12, user]}
       footer={<><button className="btn btn-secondary" onClick={() => { track('atras', 'ficha'); setIdx(STEPS.length - 1); go('alta'); }}>Atrás</button><button className="btn btn-primary" onClick={() => { finishSession({ ...a, usuario: user.nombre }); go('lista'); }}>Continuar</button></>}>
-      <Ficha a={a} onEdit={(i) => { track('editar_desde_ficha', STEPS[i].id); setIdx(i); go('alta'); }} />
+      <Ficha a={a} onEdit={(i) => { track('editar_desde_ficha', STEPS[i].id); setEdit({ i, snap: a }); }} />
+      {edit && <EditarDato step={STEPS[edit.i]} a={a} set={set}
+        onCancel={() => { setA(edit.snap); setEdit(null); }}
+        onSave={() => { track('guardo_edicion', STEPS[edit.i].id); setEdit(null); }} />}
     </Shell>;
     case 'lista': return <Lista a={a} name={user.nombre} onEnd={() => { leaveStep(); go('fin'); }} />;
     case 'pausa': return <Retomar name={user.nombre} idx={idx} onResume={() => { track('retomar'); go(idx === 0 && !a.pais ? 'bienvenida' : 'alta'); }} />;
@@ -453,6 +457,27 @@ function Fin() {
         <div style={{ display: 'flex', gap: 10 }}>
           <a className="btn btn-secondary" href="#moderador">Ver resultados</a>
           <button className="btn btn-primary" onClick={() => location.reload()}>Nueva prueba</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Editar un dato desde la ficha ---------------- */
+function EditarDato({ step, a, set, onCancel, onSave }) {
+  const ok = !!step.valid(a);
+  useEffect(() => {
+    const k = (e) => { if (e.key === 'Escape') onCancel(); };
+    window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k);
+  }, []); // eslint-disable-line
+  return (
+    <div className="edit-veil" onMouseDown={(e) => { if (e.target === e.currentTarget) onCancel(); }}>
+      <div className="edit-card pop" role="dialog" aria-label={`Editar: ${step.title}`}>
+        <div className="edit-body">{step.render(a, set, { openReview: () => {} })}</div>
+        <div className="edit-foot">
+          <span className="t-help" style={{ flex: 1 }}>Vuelves a tu ficha al guardar.</span>
+          <button className="btn btn-secondary" onClick={onCancel}>Cancelar</button>
+          <button className="btn btn-primary" disabled={!ok} onClick={onSave}>Guardar cambios</button>
         </div>
       </div>
     </div>
