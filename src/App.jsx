@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Mail, Pencil, Link2, Sparkles, Globe, ChevronRight, Package, Users } from 'lucide-react';
-import { FakeApp, Logo, Ring, TextArea, TextField } from './ui.jsx';
+import { FakeApp, Logo, Ring, TextArea, TextField, useFit } from './ui.jsx';
 import { STAGES, STEPS, initialAnswers, usuariosDe, TOTAL_PREGUNTAS } from './steps.jsx';
 import Assistant from './Assistant.jsx';
 import Moderador from './Moderador.jsx';
@@ -89,11 +89,12 @@ const TITLES = { registro: 'Registro', codigo: 'Código de verificación', bienv
 
 /* ---------------- Marco del alta ---------------- */
 function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, onExit, help, closeHelp, helpCtx }) {
+  const z = useFit(800);
   return (
     <div className="stage">
       <FakeApp name={name} />
       <div className="veil" />
-      <div className="modal">
+      <div className="modal" style={z < 1 ? { zoom: z } : null}>
         <div className="mhead">
           <div className="mbar">
             <Logo /><span className="sep" /><span className="t-small">Configura tu cuenta</span>
@@ -368,11 +369,12 @@ function Ficha({ a, loading, onLoaded, onEdit }) {
 
 /* ---------------- Celebración ---------------- */
 function Lista({ a, name, onEnd }) {
+  const z = useFit(820);
   const conf = useMemo(() => Array.from({ length: 36 }, (_, i) => ({ left: Math.random() * 100, delay: Math.random() * 4, dur: 5 + Math.random() * 5, c: ['#ff5b2e', '#a78bfa', '#5c8ff2', '#f9bf2e', '#12a37a'][i % 5], w: 6 + Math.random() * 6 })), []);
   return (
     <div className="celebra">
       {conf.map((c, i) => <span key={i} className="confeti" style={{ left: `${c.left}%`, width: c.w * 0.6, height: c.w * 1.6, background: c.c, animationDelay: `${c.delay}s`, animationDuration: `${c.dur}s`, opacity: .7 }} />)}
-      <div className="premio fade-in">
+      <div className="premio fade-in" style={z < 1 ? { zoom: z } : null}>
         <div className="medalla">
           <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'rgba(255,91,46,.08)' }} />
           <div style={{ position: 'absolute' }}><Ring pct={0.67} size={112} stroke={9}><span /></Ring></div>

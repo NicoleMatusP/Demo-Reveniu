@@ -1,4 +1,13 @@
+import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
+
+/** Escala para que el diseño (pensado para 800 px de alto) nunca tenga scroll. */
+export function useFit(designH = 800, designW = 0) {
+  const calc = () => Math.min(1, window.innerHeight / designH, designW ? window.innerWidth / designW : 1);
+  const [s, setS] = useState(calc);
+  useEffect(() => { const on = () => setS(calc()); window.addEventListener('resize', on); return () => window.removeEventListener('resize', on); }, []); // eslint-disable-line
+  return s;
+}
 
 export function Logo() {
   return (
