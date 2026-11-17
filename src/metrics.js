@@ -19,6 +19,8 @@ export function startSession(participant) {
   session = {
     id: Date.now().toString(36),
     participant: participant || 'Sin código',
+    device: window.innerWidth <= 900 ? 'Mobile' : 'Desktop',
+    viewport: `${window.innerWidth}×${window.innerHeight}`,
     startedAt: new Date().toISOString(),
     t0: performance.now(),
     steps: {},      // id -> { title, ms, visits }
@@ -121,13 +123,13 @@ export const fmt = (ms) => {
 
 export function toCSV(sessions) {
   const sec = (ms) => (ms != null ? (ms / 1000).toFixed(1) : '');
-  const rows = [['sesion', 'participante', 'inicio', 'fase', 'paso', 'pregunta', 'segundos', 'visitas', 'alta_segundos', 'validacion_segundos', 'total_segundos', 'volver_atras', 'ayuda_abierta', 'guardar_y_salir']];
+  const rows = [['sesion', 'participante', 'dispositivo', 'pantalla', 'inicio', 'fase', 'paso', 'pregunta', 'segundos', 'visitas', 'alta_segundos', 'validacion_segundos', 'total_segundos', 'volver_atras', 'ayuda_abierta', 'guardar_y_salir']];
   for (const s of sessions) {
     const back = s.events.filter((e) => e.type === 'atras').length;
     const help = s.events.filter((e) => e.type === 'ayuda').length;
     const exit = s.events.filter((e) => e.type === 'guardar_y_salir').length;
     for (const [id, st] of Object.entries(s.steps)) {
-      rows.push([s.id, s.participant, s.startedAt, PHASES[st.phase || 'alta'], id, st.title, sec(st.ms), st.visits, sec(phaseMs(s, 'alta')), sec(phaseMs(s, 'validacion')), sec(s.totalMs), back, help, exit]);
+      rows.push([s.id, s.participant, s.device || 'Desktop', s.viewport || '', s.startedAt, PHASES[st.phase || 'alta'], id, st.title, sec(st.ms), st.visits, sec(phaseMs(s, 'alta')), sec(phaseMs(s, 'validacion')), sec(s.totalMs), back, help, exit]);
     }
   }
   return rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');

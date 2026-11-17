@@ -3,7 +3,7 @@ import { STAGES } from './steps.jsx';
 import Assistant from './Assistant.jsx';
 
 /* ---------------- Marco del alta ---------------- */
-export function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, onExit, help, closeHelp, helpCtx, stages = STAGES, proceso = 'Configura tu cuenta' }) {
+export function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, onExit, help, closeHelp, helpCtx, stages = STAGES, proceso = 'Configura tu cuenta', footerStack = false }) {
   const z = useFit(800);
   return (
     <div className="stage">
@@ -25,10 +25,11 @@ export function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, on
               </div>
             ))}
           </div>
+          <div className="stage-now">{stages[stageIdx]} · {stageIdx + 1} de {stages.length}</div>
         </div>
         <div className="mbody">
           <div className={`area${wide ? ' wide' : ''}`}>{children}</div>
-          {footer && <div className={`mfoot${wide ? ' wide' : ''}`}>{footer}</div>}
+          {footer && <div className={`mfoot${wide ? ' wide' : ''}${footerStack ? ' stack' : ''}`}>{footer}</div>}
         </div>
         {help && <Assistant step={helpCtx[0]} stepNumber={helpCtx[1]} email={helpCtx[2].correo} name={helpCtx[2].nombre} onClose={closeHelp} />}
       </div>

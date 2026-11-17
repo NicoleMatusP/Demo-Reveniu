@@ -138,7 +138,7 @@ export const STEPS = [
       <div style={{ position: 'relative' }}>
         <Options multi value={a.cobro} onChange={(v) => set({ cobro: v })} options={COBRO} />
         {a.cobro.includes('Otro') && (
-          <div className="pop" style={{ position: 'absolute', right: 0, bottom: 0, width: 'calc(50% - 6px)' }}>
+          <div className="pop otro-lado" style={{ position: 'absolute', right: 0, bottom: 0, width: 'calc(50% - 6px)' }}>
             <TextField label="¿Cuál?" value={a.cobroOtro} onChange={(v) => set({ cobroOtro: v })} placeholder="Ej: Clases particulares por hora" autoFocus />
           </div>
         )}

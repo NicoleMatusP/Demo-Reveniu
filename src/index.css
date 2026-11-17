@@ -205,20 +205,6 @@ input, textarea { font: inherit; color: inherit; }
 .card { background: var(--base); border: 1px solid var(--borde); border-radius: 16px; padding: 20px; }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--texto); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 14px; z-index: 50; }
 
-@media (max-width: 900px) {
-  .auth { grid-template-columns: 1fr; }
-  .brand-panel { display: none; }
-  .auth-form { padding: 32px 24px; }
-  .stage { padding: 0; }
-  .modal { height: 100vh !important; border-radius: 0; zoom: 1 !important; }
-  .mhead, .mbody { padding-left: 16px; padding-right: 16px; }
-  .options, .options.three, .ficha-grid, .logros { grid-template-columns: 1fr; }
-  .dato { border-right: 0 !important; }
-  .area { height: auto; flex: 1; }
-  .premio { padding: 32px 20px; }
-  .drawer { width: 100%; }
-}
-
 /* ---------- Validación de empresa ---------- */
 .sii-docs { background: var(--superficie); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
 .doc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -275,4 +261,93 @@ input, textarea { font: inherit; color: inherit; }
 
 .resumen { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .fase-row th { background: var(--superficie); color: var(--texto) !important; font-weight: 600 !important; }
-@media (max-width: 900px) { .garantias, .vsteps, .leyendo, .resumen { grid-template-columns: 1fr; } .leyendo-ilus { display: none; } }
+
+/* ---------- Mobile (mismo diseño que la página «10 · Mobile» de Figma) ---------- */
+.stage-now, .tabbar, .app-topbar { display: none; }
+@keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 900px) {
+  html, body, #root { height: auto; min-height: 100%; }
+  .t-l { font-size: 28px; }
+  .t-xl { font-size: 30px; }
+  [style*="grid-template-columns: 1fr 1fr"], [style*="grid-template-columns: 180px"] { grid-template-columns: 1fr !important; }
+
+  /* Marco del alta y la validación: pantalla completa, cabecera fija arriba, botones fijos abajo */
+  .stage { position: static; display: block; padding: 0; min-height: 100dvh; overflow: visible; background: var(--base) !important; }
+  .bg-app, .veil { display: none; }
+  .modal { width: 100%; height: auto !important; min-height: 100dvh; border-radius: 0; box-shadow: none; zoom: 1 !important; overflow: visible; }
+  .mhead { position: sticky; top: 0; z-index: 10; background: var(--base); padding: 14px 20px 12px; }
+  .mbar { height: auto; gap: 8px; }
+  .mbar .sep, .mbar > .t-small { display: none; }
+  .stages { padding: 12px 0 0; gap: 6px; }
+  .seg-label { display: none; }
+  .stage-now { display: block; margin-top: 10px; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+  .mbody { padding: 20px 20px 132px; overflow: visible; display: block; }
+  .area, .area.wide { max-width: none; overflow: visible; }
+  .mfoot, .mfoot.wide { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-width: none; flex-wrap: wrap; gap: 10px; background: var(--base); border-top: 1px solid var(--borde); padding: 12px 20px calc(16px + env(safe-area-inset-bottom)); }
+  .mfoot .note { display: none; }
+  .mfoot .btn-primary { flex: 1 1 auto; }
+  .mfoot .btn-text { flex-basis: 100%; order: -1; justify-content: center; padding: 2px; }
+  .m-pin { position: fixed !important; left: 0; right: 0; bottom: 0; z-index: 30; display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 8px !important; background: var(--base); border-top: 1px solid var(--borde); padding: 12px 20px calc(16px + env(safe-area-inset-bottom)); }
+  .m-pin .btn { width: 100%; }
+  /* Un ancestro animado con transform atrapa a los elementos fijos: sin animación en esos contenedores */
+  .fade-in:has(.m-pin), .pop:has(.m-pin), .premio:has(.m-pin) { animation: none; }
+
+  /* Contenido */
+  .options, .options.three, .ficha-grid, .logros, .garantias, .vsteps, .leyendo, .resumen { grid-template-columns: 1fr; }
+  .dato { border-right: 0 !important; }
+  .ficha-head { flex-wrap: wrap; padding: 16px 20px; }
+  .leyendo-ilus { display: none; }
+  .vband { flex-wrap: wrap; padding: 16px 20px; }
+  .vbody { padding: 18px 20px; }
+  .aviso.ok { flex-wrap: wrap; }
+
+  /* Registro, código y bienvenida */
+  .auth { position: static; display: flex; flex-direction: column; min-height: 100dvh; }
+  .brand-panel { display: flex; order: -1; margin: 0; border-radius: 0 0 24px 24px; padding: 24px 20px; min-height: 210px; justify-content: flex-end; }
+  .brand-panel h2 { font-size: 30px !important; }
+  .brand-panel p, .brand-panel .notif { display: none; }
+  .auth-form { padding: 24px 20px 120px; }
+  .auth-form > .logo { display: none; }
+  .center-card { width: 100%; border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 56px 20px 160px; }
+  .code { gap: 8px; }
+  .mail-toast { top: 12px !important; left: 12px !important; right: 12px !important; width: auto !important; z-index: 50; }
+  .mail-toast + .center-card { padding-top: 112px; }
+  .code input { width: 48px; height: 56px; }
+
+  /* Celebración */
+  .celebra { position: static; display: block; min-height: 100dvh; padding: 24px 16px 170px; }
+  .premio { width: 100%; padding: 32px 20px; zoom: 1 !important; }
+
+  /* Ayuda y edición como hojas que suben desde abajo */
+  .drawer-veil { position: fixed; z-index: 40; }
+  .drawer { position: fixed; top: 48px; left: 0; right: 0; bottom: 0; width: 100%; z-index: 41; border-left: 0; border-radius: 20px 20px 0 0; animation: sheetUp .3s cubic-bezier(.2,.8,.2,1) both; }
+  .edit-veil { position: fixed; z-index: 40; padding: 0; place-items: end center; }
+  .edit-card { width: 100%; max-height: calc(100dvh - 48px); border-radius: 20px 20px 0 0; animation: sheetUp .3s cubic-bezier(.2,.8,.2,1) both; }
+  .edit-body { padding: 24px 20px 8px; }
+  .edit-foot { flex-wrap: wrap; padding: 12px 20px calc(16px + env(safe-area-inset-bottom)); }
+  .edit-foot .t-help { flex-basis: 100%; }
+
+  /* Empresa aprobada en Inicio */
+  .app-inicio { position: static; display: block; min-height: 100dvh; }
+  .app-side { display: none; }
+  .app-topbar { display: flex; align-items: center; padding: 12px 20px; background: var(--base); border-bottom: 1px solid var(--borde); }
+  .franja-prueba { font-size: 12px; padding: 8px 12px; }
+  .app-content { padding: 20px 20px 210px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--base); border-top: 1px solid var(--borde); padding: 8px 0 calc(14px + env(safe-area-inset-bottom)); }
+  .tabbar span { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--texto-3); }
+  .tabbar span.on { color: var(--texto); font-weight: 600; }
+  .fin-prueba { left: 16px; right: 16px; width: auto; bottom: 86px; }
+
+  .mfoot.stack { flex-direction: column-reverse; }
+  .mfoot.stack .btn { width: 100%; }
+  .otro-lado { position: static !important; width: 100% !important; margin-top: 12px; }
+  .vband > div:first-child { flex: 1 1 100% !important; }
+  .resend { flex-wrap: wrap; }
+  .resend > span { flex: 1 1 100% !important; }
+  .resend .btn { flex: 1 1 0; }
+  .aviso.ok > div { flex: 1 1 calc(100% - 40px) !important; }
+  .mod > div:first-child .sep, .mod > div:first-child > .t-small { display: none; }
+  .toast { bottom: 104px; }
+  .tip { width: min(300px, calc(100vw - 32px)); }
+  .mod { margin: 20px auto; padding: 0 16px 40px; }
+}

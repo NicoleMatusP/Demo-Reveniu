@@ -157,7 +157,7 @@ function Registro({ user, setUser, onDone }) {
           </div>
           <TextField label="Correo de trabajo" type="email" value={user.correo} onChange={u('correo')} help="Con el correo de tu empresa completamos más por ti." error={tried && err.correo} />
           <TextField label="Contraseña" type="password" value={user.clave} onChange={u('clave')} help="Mínimo 10 caracteres." error={tried && err.clave} />
-          <button className="btn btn-primary btn-block" type="submit">Crear cuenta gratis</button>
+          <div className="m-pin"><button className="btn btn-primary btn-block" type="submit">Crear cuenta gratis</button></div>
           <p className="t-help">Al crear tu cuenta aceptas los Términos y la Política de privacidad. Tratamos tus datos conforme a la Ley 21.719.</p>
         </form>
       </div>
@@ -182,7 +182,7 @@ function Codigo({ email, onBack, onDone }) {
   return (
     <div className="stage" style={{ background: 'radial-gradient(60% 60% at 15% 10%, #d6e7f8, transparent 70%), var(--lienzo)' }}>
       {mail && (
-        <div className="pop" style={{ position: 'fixed', top: 20, right: 20, width: 340, background: '#fff', border: '1px solid var(--borde)', borderRadius: 14, boxShadow: 'var(--sombra-modal)', padding: 16, display: 'flex', gap: 12 }}>
+        <div className="pop mail-toast" style={{ position: 'fixed', top: 20, right: 20, width: 340, background: '#fff', border: '1px solid var(--borde)', borderRadius: 14, boxShadow: 'var(--sombra-modal)', padding: 16, display: 'flex', gap: 12 }}>
           <Mail size={20} />
           <div><div className="t-label">Nuevo correo · Reveniu</div><div className="t-small">Tu código de verificación es <b style={{ color: 'var(--texto)', letterSpacing: '.1em' }}>{CODE}</b></div></div>
         </div>
@@ -199,7 +199,7 @@ function Codigo({ email, onBack, onDone }) {
           ))}
         </div>
         {error && <p className="t-help" style={{ color: 'var(--late-texto)' }}>Ese código no calza. Revisa el correo que te enviamos.</p>}
-        <button className="btn btn-primary btn-block" disabled={vals.join('').length < 6} onClick={verify}>Verificar y continuar</button>
+        <div className="m-pin"><button className="btn btn-primary btn-block" disabled={vals.join('').length < 6} onClick={verify}>Verificar y continuar</button></div>
         <div className="t-help" style={{ display: 'flex', justifyContent: 'space-between' }}><span>¿No llegó? Revisa spam o reenvía en 0:42</span><button className="t-help" style={{ textDecoration: 'underline' }} onClick={onBack}>Cambiar correo</button></div>
       </div>
     </div>
@@ -213,7 +213,7 @@ function Bienvenida({ name, onStart, onLater }) {
         <span className="tag ok">Cuenta creada · modo prueba</span>
         <h1 className="t-l">Hola, {name || 'hola'}. Qué bueno tenerte aquí.</h1>
         <p className="t-body"><G>Necesitamos dos minutos de tu tiempo. Con unas pocas preguntas configuramos Reveniu para tu negocio: tu forma de cobrar, tu marca y tus agentes.</G></p>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div className="m-pin" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <button className="btn btn-primary" onClick={onStart}>Empecemos</button>
           <button className="btn btn-text" onClick={onLater}>Prefiero hacerlo después</button>
         </div>
@@ -235,8 +235,8 @@ function PaisNo({ onWrong, onNotify }) {
         <div style={{ display: 'flex', gap: 10 }}><Check size={18} /><div><div className="t-label">Cobra desde Chile a clientes de otros países</div><div className="t-help">Si tu empresa está en Chile, tus clientes pueden pagar desde cualquier país.</div></div></div>
         <div style={{ display: 'flex', gap: 10 }}><Check size={18} /><div><div className="t-label">Te avisamos cuando lleguemos</div><div className="t-help">Un solo correo, el día que abramos en tu país.</div></div></div>
       </div>
-      <button className="btn btn-primary btn-block" onClick={onNotify}>Avisarme cuando lleguen</button>
-      <button className="btn btn-text" onClick={onWrong}>Me equivoqué, sí opero en Chile</button>
+      <div className="m-pin" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}><button className="btn btn-primary btn-block" onClick={onNotify}>Avisarme cuando lleguen</button>
+      <button className="btn btn-text" onClick={onWrong}>Me equivoqué, sí opero en Chile</button></div>
     </div>
   );
 }
@@ -249,8 +249,8 @@ function PaisAviso({ email, onWrong, onOk }) {
         <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--ok-fondo)', display: 'grid', placeItems: 'center' }}><Check color="var(--ok-texto)" size={32} /></div>
         <h1 className="t-l">Listo, te avisaremos</h1>
         <p className="t-body">Te escribiremos a {email} apenas Reveniu llegue a tu país. Revisa también tu carpeta de spam.</p>
-        <button className="btn btn-primary btn-block" onClick={onOk}>Entendido</button>
-        <button className="btn btn-text" onClick={onWrong}>Me equivoqué, sí opero en Chile</button>
+        <div className="m-pin" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}><button className="btn btn-primary btn-block" onClick={onOk}>Entendido</button>
+        <button className="btn btn-text" onClick={onWrong}>Me equivoqué, sí opero en Chile</button></div>
       </>)}
     </div>
   );
@@ -276,7 +276,7 @@ function Revisar({ a, set, onDone }) {
         </div>
       </div>
       <TextArea label="¿Qué falta o qué cambiarías? (opcional)" value={nota} onChange={setNota} help="Lo guardamos como contexto para tus agentes y nuestro equipo." />
-      <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+      <div className="m-pin" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
         <button className="btn btn-primary" onClick={() => { if (!a.vende) set({ vende: desc }); onDone(); }}>Sí, es correcto</button>
       </div>
     </div>
@@ -371,7 +371,7 @@ function Lista({ a, name, onValidate, onEnd }) {
           <div style={{ flex: 1 }}><div className="t-label">Falta 1 paso: valida tu empresa y tu cuenta bancaria</div><div className="t-help">Unos 5 minutos. Lo pedimos solo cuando quieras cobrar de verdad.</div></div>
         </div>
         <div style={{ height: 28 }} />
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div className="m-pin" style={{ display: 'flex', gap: 10 }}>
           <button className="btn btn-primary" onClick={() => { track('final', 'validar'); onValidate(); }}>Validar mi empresa ahora</button>
           <button className="btn btn-text" style={{ padding: '0 16px' }} onClick={() => { track('final', 'despues'); onEnd(); }}>Lo hago después</button>
         </div>

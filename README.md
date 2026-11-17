@@ -22,6 +22,10 @@ Los resultados se guardan en el navegador donde se hizo la prueba. Descárgalos 
 - Carga animada de la ficha, ficha de la empresa armada con las respuestas (se puede editar cada dato) y pantalla de celebración.
 - Validación de empresa: conexión con el SII (RUT con dígito verificador y clave tributaria), lectura animada de documentos, datos encontrados, representante legal (verificación de identidad simulada o invitación a otra persona), cuenta bancaria, revisión y empresa aprobada en Inicio.
 
+## Mobile
+
+El prototipo se adapta solo al abrirlo en un celular (o en una ventana de hasta 900 px de ancho), con el mismo diseño que la página «10 · Mobile» de Figma: pantalla completa, botones fijos abajo, una columna, pills a su ancho natural y las ayudas como hojas que suben desde abajo. Los resultados guardan si la prueba se hizo en Mobile o Desktop (columna `dispositivo`) y el tamaño de la pantalla.
+
 ## Cómo se mide
 
 - **Alta:** desde que empieza el registro hasta que la persona deja la pantalla de celebración.

@@ -45,13 +45,14 @@ export default function Moderador() {
         )}
         {!sessions.length && <div className="card t-body">Todavía no hay pruebas. Vuelve al inicio y comienza una.</div>}
         {!!sessions.length && (
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div className="card" style={{ padding: 0, overflow: 'auto' }}>
             <table className="table">
-              <thead><tr><th>Participante</th><th>Fecha</th><th className="num">Alta</th><th className="num">Validación</th><th className="num">Total</th><th className="num">Atrás</th><th className="num">Ayuda</th><th>Estado</th></tr></thead>
+              <thead><tr><th>Participante</th><th>Dispositivo</th><th>Fecha</th><th className="num">Alta</th><th className="num">Validación</th><th className="num">Total</th><th className="num">Atrás</th><th className="num">Ayuda</th><th>Estado</th></tr></thead>
               <tbody>
                 {sessions.map((x) => (
                   <tr key={x.id} onClick={() => setOpen(x.id)} style={{ cursor: 'pointer', background: x.id === open ? 'var(--superficie)' : undefined }}>
                     <td className="t-label">{x.participant}</td>
+                    <td>{x.device || 'Desktop'}</td>
                     <td>{new Date(x.startedAt).toLocaleString('es-CL')}</td>
                     <td className="num">{fmt(phaseMs(x, 'alta'))}</td>
                     <td className="num">{fmt(phaseMs(x, 'validacion'))}</td>

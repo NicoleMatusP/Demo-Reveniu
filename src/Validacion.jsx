@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check, Clock, Copy, Eye, FileText, IdCard, Info, Lock, RefreshCw, ScanFace, Shield, Users, X } from 'lucide-react';
+import { Check, CircleDollarSign, Clock, Copy, Eye, FileText, House, IdCard, Info, Lock, MoreHorizontal, Package, RefreshCw, ScanFace, Shield, Sparkles, Users, X } from 'lucide-react';
 import { Shell } from './Shell.jsx';
 import { Options, Ring, TextField } from './ui.jsx';
 import { G } from './glossary.jsx';
@@ -205,7 +205,7 @@ export default function Validacion({ user, a, onBack, onDone }) {
     case 'v-invitada': {
       const contacto = inv.contacto.trim();
       body = (
-        <Shell {...shellProps(1, 1, 'Invitación enviada')}
+        <Shell {...shellProps(1, 1, 'Invitación enviada')} footerStack
           footer={<>
             <button className="btn btn-secondary" onClick={() => { track('cambiar_correo'); go('v-rep'); }}>Cambiar correo</button>
             <button className="btn btn-primary" onClick={() => go('v-banco')}>Seguir con la cuenta bancaria</button>
@@ -221,7 +221,7 @@ export default function Validacion({ user, a, onBack, onDone }) {
                 <div style={{ flex: 1 }}><div className="t-m" style={{ fontSize: 18 }}>{inv.nombre.trim()}</div><div className="t-help">{contacto}</div></div>
                 <span className="tag due">Esperando verificación</span>
               </div>
-              <div className="vbody" style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--superficie)', borderTop: '1px solid var(--borde)', padding: '14px 28px' }}>
+              <div className="vbody resend" style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--superficie)', borderTop: '1px solid var(--borde)', padding: '14px 28px' }}>
                 <span className="t-small" style={{ flex: 1 }}>¿No le llegó? Reenvíalo o comparte el link tú.</span>
                 <button className="btn btn-secondary btn-s" onClick={() => { track('reenviar_invitacion'); setToast('Invitación reenviada.'); }}><RefreshCw size={15} />Reenviar</button>
                 <button className="btn btn-secondary btn-s" onClick={() => { track('copiar_link'); setToast('Link copiado.'); }}><Copy size={15} />Copiar link</button>
@@ -361,7 +361,7 @@ function Identidad({ onDone }) {
         ))}
       </div>
       <div style={{ height: 24 }} />
-      {n >= 3 && <div className="pop" style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn btn-primary" onClick={onDone}>Seguir con la cuenta bancaria</button></div>}
+      {n >= 3 && <div className="pop m-pin" style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn btn-primary" onClick={onDone}>Seguir con la cuenta bancaria</button></div>}
     </div>
   );
 }
@@ -407,6 +407,7 @@ function Aprobada({ name, org, onEnd }) {
     <div className="app-inicio">
       <aside className="app-side"><span className="logo-mark" style={{ width: 28, height: 28, borderRadius: 8 }} /><span className="avatar" style={{ background: 'var(--suave)', color: 'var(--texto)' }}>{iniciales(org)}</span></aside>
       <div className="app-main">
+        <div className="app-topbar"><span className="logo-mark" style={{ width: 28, height: 28, borderRadius: 8 }} /><span className="spacer" /><span className="avatar" style={{ background: 'var(--suave)', color: 'var(--texto)' }}>CR</span></div>
         <div className="franja-prueba"><G>Modo prueba</G> · Los cobros no son reales. <u>Activar cobros reales</u></div>
         <div className="app-content fade-in">
           <div className="t-help">Hoy</div>
@@ -423,6 +424,7 @@ function Aprobada({ name, org, onEnd }) {
           </div>
         </div>
       </div>
+      <nav className="tabbar">{[[House, 'Inicio'], [Sparkles, 'Agentes'], [CircleDollarSign, 'Cobrar'], [Package, 'Vender'], [MoreHorizontal, 'Más']].map(([I, l], i) => <span key={l} className={i === 0 ? 'on' : ''}><I size={21} />{l}</span>)}</nav>
       <div className="fin-prueba pop">
         <div style={{ flex: 1 }}><div className="t-label">¡Listo, {name || 'terminaste'}!</div><div className="t-help">Terminaste la prueba. Avísale a quien te acompaña.</div></div>
         <button className="btn btn-primary btn-s" onClick={onEnd}>Terminar</button>
