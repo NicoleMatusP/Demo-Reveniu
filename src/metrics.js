@@ -10,6 +10,10 @@ const save = (all) => {
 
 let session = null;
 let current = null; // { id, title, enteredAt }
+let phase = null;   // 'alta' | 'validacion'
+
+// Las dos partes que se miden por separado.
+export const PHASES = { alta: 'Alta', validacion: 'Validación de empresa' };
 
 export function startSession(participant) {
   session = {
@@ -20,11 +24,13 @@ export function startSession(participant) {
     steps: {},      // id -> { title, ms, visits }
     order: [],      // orden en que se vieron
     events: [],     // { t, type, detail }
+    phases: {},     // alta / validacion -> { startMs, ms }
     finishedAt: null,
     totalMs: null,
   };
   current = null;
-  persist();
+  phase = null;
+  startPhase('alta');
   return session;
 }
 
@@ -36,7 +42,7 @@ export function enterStep(id, title) {
   if (!session) return;
   leaveStep();
   current = { id, title, enteredAt: performance.now() };
-  if (!session.steps[id]) session.steps[id] = { title, ms: 0, visits: 0 };
+  if (!session.steps[id]) session.steps[id] = { title, ms: 0, visits: 0, phase };
   session.steps[id].visits += 1;
   session.order.push({ id, title, at: Math.round(now()) });
   persist();
@@ -55,13 +61,45 @@ export function track(type, detail = '') {
   persist();
 }
 
-export function finishSession(answers) {
-  if (!session || session.finishedAt) return;
+/** Empieza a medir una parte de la prueba (alta o validación). */
+export function startPhase(name) {
+  if (!session || session.phases[name]) return;
   leaveStep();
-  session.finishedAt = new Date().toISOString();
-  session.totalMs = Math.round(now());
+  if (phase && phase !== name) endPhase(phase);
+  session.phases[name] = { startMs: Math.round(now()), ms: null };
+  phase = name;
+  track(`fase_inicio_${name}`);
+}
+
+/** Cierra una parte: su tiempo queda fijo aunque la persona siga en otra pantalla. */
+export function endPhase(name) {
+  const p = session?.phases[name];
+  if (!p || p.ms != null) return;
+  leaveStep();
+  p.ms = Math.round(now()) - p.startMs;
+  if (phase === name) phase = null;
+  track(`fase_fin_${name}`);
+}
+
+export function saveAnswers(answers) {
+  if (!session) return;
   session.answers = answers;
   persist();
+}
+
+export function finishSession() {
+  if (!session || session.finishedAt) return;
+  leaveStep();
+  if (phase) endPhase(phase);
+  session.finishedAt = new Date().toISOString();
+  session.totalMs = Math.round(now());
+  persist();
+}
+
+/** Tiempo de una parte. Para pruebas antiguas (sin partes) todo cuenta como alta. */
+export function phaseMs(s, name) {
+  if (s.phases?.[name]) return s.phases[name].ms;
+  return name === 'alta' ? s.totalMs : null;
 }
 
 function persist() {
@@ -82,13 +120,14 @@ export const fmt = (ms) => {
 };
 
 export function toCSV(sessions) {
-  const rows = [['sesion', 'participante', 'inicio', 'paso', 'pregunta', 'segundos', 'visitas', 'total_segundos', 'volver_atras', 'ayuda_abierta', 'guardar_y_salir']];
+  const sec = (ms) => (ms != null ? (ms / 1000).toFixed(1) : '');
+  const rows = [['sesion', 'participante', 'inicio', 'fase', 'paso', 'pregunta', 'segundos', 'visitas', 'alta_segundos', 'validacion_segundos', 'total_segundos', 'volver_atras', 'ayuda_abierta', 'guardar_y_salir']];
   for (const s of sessions) {
     const back = s.events.filter((e) => e.type === 'atras').length;
     const help = s.events.filter((e) => e.type === 'ayuda').length;
     const exit = s.events.filter((e) => e.type === 'guardar_y_salir').length;
     for (const [id, st] of Object.entries(s.steps)) {
-      rows.push([s.id, s.participant, s.startedAt, id, st.title, (st.ms / 1000).toFixed(1), st.visits, s.totalMs != null ? (s.totalMs / 1000).toFixed(1) : '', back, help, exit]);
+      rows.push([s.id, s.participant, s.startedAt, PHASES[st.phase || 'alta'], id, st.title, sec(st.ms), st.visits, sec(phaseMs(s, 'alta')), sec(phaseMs(s, 'validacion')), sec(s.totalMs), back, help, exit]);
     }
   }
   return rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');

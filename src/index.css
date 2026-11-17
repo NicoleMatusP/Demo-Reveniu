@@ -218,3 +218,61 @@ input, textarea { font: inherit; color: inherit; }
   .premio { padding: 32px 20px; }
   .drawer { width: 100%; }
 }
+
+/* ---------- Validación de empresa ---------- */
+.sii-docs { background: var(--superficie); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.doc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.doc-chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--base); border: 1px solid var(--borde); font-size: 13px; }
+.mini-check { width: 16px; height: 16px; border-radius: 50%; background: var(--texto); display: grid; place-items: center; flex: none; }
+.mini-check.l { width: 20px; height: 20px; }
+.mini-empty { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--borde-fuerte); flex: none; }
+.garantias { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.ico-chip { width: 30px; height: 30px; border-radius: 9px; background: var(--superficie); display: grid; place-items: center; flex: none; }
+.check-row { display: flex; align-items: center; gap: 12px; text-align: left; }
+.check-row.on .mark { border-color: var(--texto); background: var(--texto); }
+.select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23686e78' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+.aviso { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-radius: 12px; background: var(--superficie); border: 1px solid var(--borde); }
+.aviso.ok { background: var(--base); align-items: center; }
+.tag.due { background: var(--due-fondo); color: var(--due-texto); }
+.tag.neutral { background: var(--suave); color: var(--texto-2); }
+.tag.neutral::before { display: none; }
+.ok-badge { width: 56px; height: 56px; border-radius: 50%; background: var(--ok-fondo); display: grid; place-items: center; }
+
+.leyendo { display: grid; grid-template-columns: 42% 1fr; border: 1px solid var(--borde); border-radius: 20px; overflow: hidden; box-shadow: 0 12px 32px -12px rgba(13,14,16,.08); }
+.leyendo-ilus { background: linear-gradient(180deg, #d6e7f8 0%, #edf3fb 60%, #fbfbfc 100%); display: grid; place-items: center; padding: 28px; }
+.hoja { position: relative; width: 150px; height: 180px; background: #fff; border-radius: 10px; box-shadow: 0 16px 30px -12px rgba(26,51,128,.3), 10px 10px 0 -2px rgba(255,255,255,.6); padding: 16px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.hoja-tag { font-size: 11px; font-weight: 600; background: var(--suave); border-radius: 6px; padding: 3px 7px; width: fit-content; }
+.hoja-linea { height: 6px; border-radius: 3px; background: var(--suave); }
+.hoja-lock { position: absolute; right: 10px; bottom: 10px; width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 1px solid var(--borde); display: grid; place-items: center; }
+.scan { position: absolute; left: 0; right: 0; height: 2px; background: var(--naranja); box-shadow: 0 0 18px 6px rgba(255,91,46,.18); animation: scan 2.2s ease-in-out infinite alternate; }
+@keyframes scan { from { top: 18%; } to { top: 82%; } }
+.leyendo-lista { padding: 18px 22px; display: flex; flex-direction: column; }
+.leyendo-item { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid var(--borde); }
+.leyendo-lista .leyendo-item:first-of-type { border-top: 0; }
+.barra { height: 6px; border-radius: 4px; background: var(--suave); overflow: hidden; margin: 10px 0 6px; }
+.barra > div { height: 100%; background: var(--texto); border-radius: 4px; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+
+.vpanel { border: 1px solid var(--borde); border-radius: 18px; overflow: hidden; background: var(--base); }
+.vband { display: flex; align-items: center; gap: 16px; padding: 18px 28px; background: linear-gradient(90deg, #d6e7f8 0%, #edf3fb 60%, #fff0eb 100%); }
+.vbody { padding: 22px 28px; }
+.vavatar { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-weight: 600; font-size: 15px; flex: none; }
+.vsteps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.vtile { width: 44px; height: 44px; border-radius: 12px; background: var(--superficie); border: 1px solid var(--borde); display: grid; place-items: center; flex: none; }
+.vtile.dark { background: var(--texto); border-color: var(--texto); }
+.vline { flex: 1; height: 1px; background: var(--borde); }
+.qr { width: 56px; height: 56px; padding: 4px; background: #fff; border-radius: 8px; fill: var(--texto); flex: none; }
+
+.app-inicio { position: fixed; inset: 0; display: flex; background: var(--lienzo); }
+.app-side { width: 72px; background: var(--base); border-right: 1px solid var(--borde); display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 20px 0; }
+.app-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.franja-prueba { background: var(--due-fondo); color: var(--texto); font-size: 13px; text-align: center; padding: 9px; }
+.app-content { padding: 48px 56px; max-width: 1240px; width: 100%; }
+.paso { display: flex; gap: 14px; padding: 14px 16px; border-radius: 12px; }
+.paso.on { background: var(--base); border: 1px solid var(--borde); }
+.paso-n { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--borde-fuerte); display: grid; place-items: center; font-size: 12px; flex: none; }
+.paso.on .paso-n { border-color: var(--texto); }
+.fin-prueba { position: fixed; right: 24px; bottom: 24px; width: 380px; display: flex; gap: 14px; align-items: center; background: var(--base); border: 1px solid var(--borde); border-radius: 16px; padding: 16px 18px; box-shadow: var(--sombra-modal); }
+
+.resumen { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.fase-row th { background: var(--superficie); color: var(--texto) !important; font-weight: 600 !important; }
+@media (max-width: 900px) { .garantias, .vsteps, .leyendo, .resumen { grid-template-columns: 1fr; } .leyendo-ilus { display: none; } }

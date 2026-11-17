@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Mail, Pencil, Link2, Sparkles, Globe, ChevronRight, Package, Users } from 'lucide-react';
-import { FakeApp, Logo, Ring, TextArea, TextField, useFit } from './ui.jsx';
+import { Logo, Ring, TextArea, TextField, useFit } from './ui.jsx';
 import { STAGES, STEPS, initialAnswers, usuariosDe, TOTAL_PREGUNTAS } from './steps.jsx';
-import Assistant from './Assistant.jsx';
+import { Shell } from './Shell.jsx';
 import { G } from './glossary.jsx';
 import Moderador from './Moderador.jsx';
-import { enterStep, finishSession, startSession, track, leaveStep } from './metrics.js';
+import { endPhase, enterStep, finishSession, saveAnswers, startPhase, startSession, track } from './metrics.js';
+import Validacion from './Validacion.jsx';
 
 const CODE = 'K7Q2M9';
 
@@ -29,7 +30,7 @@ export default function App() {
   // Registro de tiempos por pantalla
   const stepKey = screen === 'alta' ? (review ? 'revisar-sitio' : STEPS[idx].id) : screen === 'ficha' && edit ? `editar-${STEPS[edit.i].id}` : screen;
   const stepTitle = screen === 'alta' ? (review ? '¿Es esto correcto? (revisar sitio)' : STEPS[idx].title) : screen === 'ficha' && edit ? `Editar desde la ficha · ${STEPS[edit.i].title}` : TITLES[screen];
-  useEffect(() => { if (screen !== 'inicio' && screen !== 'fin') enterStep(stepKey, stepTitle); }, [stepKey]); // eslint-disable-line
+  useEffect(() => { if (!['inicio', 'fin', 'validacion'].includes(screen)) enterStep(stepKey, stepTitle); }, [stepKey]); // eslint-disable-line
   useEffect(() => { if (screen === 'alta') STEPS[idx].onEnter?.(a, set); }, [idx, screen]); // eslint-disable-line
 
   if (route === 'moderador') return <Moderador />;
@@ -51,7 +52,7 @@ export default function App() {
       <PaisNo onWrong={() => { set({ pais: 'Chile' }); setIdx(0); go('alta'); }} onNotify={() => go('pais-aviso')} />
     </Shell>;
     case 'pais-aviso': return <Shell name={user.nombre} stageIdx={0} fill={0.1} onHelp={() => setHelp(true)} onExit={() => go('pausa')} help={help} closeHelp={() => setHelp(false)} helpCtx={['¿Dónde opera tu empresa?', 1, user]}>
-      <PaisAviso email={user.correo} onWrong={() => { set({ pais: 'Chile' }); setIdx(0); go('alta'); }} onOk={() => { finishSession(a); go('fin'); }} />
+      <PaisAviso email={user.correo} onWrong={() => { set({ pais: 'Chile' }); setIdx(0); go('alta'); }} onOk={() => { saveAnswers(a); finishSession(); go('fin'); }} />
     </Shell>;
     case 'alta': {
       const step = STEPS[idx];
@@ -77,13 +78,16 @@ export default function App() {
       <Ficha a={a} loading onLoaded={() => go('ficha')} />
     </Shell>;
     case 'ficha': return <Shell name={user.nombre} stageIdx={2} fill={1} wide onHelp={() => { track('ayuda', 'ficha'); setHelp(true); }} onExit={() => go('pausa')} help={help} closeHelp={() => setHelp(false)} helpCtx={['Esto es lo que entendimos', 12, user]}
-      footer={<><button className="btn btn-secondary" onClick={() => { track('atras', 'ficha'); setIdx(STEPS.length - 1); go('alta'); }}>Atrás</button><button className="btn btn-primary" onClick={() => { finishSession({ ...a, usuario: user.nombre }); go('lista'); }}>Continuar</button></>}>
+      footer={<><button className="btn btn-secondary" onClick={() => { track('atras', 'ficha'); setIdx(STEPS.length - 1); go('alta'); }}>Atrás</button><button className="btn btn-primary" onClick={() => { saveAnswers({ ...a, usuario: user.nombre }); go('lista'); }}>Continuar</button></>}>
       <Ficha a={a} onEdit={(i) => { track('editar_desde_ficha', STEPS[i].id); setEdit({ i, snap: a }); }} />
       {edit && <EditarDato step={STEPS[edit.i]} a={a} set={set}
         onCancel={() => { setA(edit.snap); setEdit(null); }}
         onSave={() => { track('guardo_edicion', STEPS[edit.i].id); setEdit(null); }} />}
     </Shell>;
-    case 'lista': return <Lista a={a} name={user.nombre} onEnd={() => { leaveStep(); go('fin'); }} />;
+    case 'lista': return <Lista a={a} name={user.nombre}
+      onValidate={() => { endPhase('alta'); startPhase('validacion'); go('validacion'); }}
+      onEnd={() => { finishSession(); go('fin'); }} />;
+    case 'validacion': return <Validacion user={user} a={a} onBack={() => go('lista')} onDone={() => go('fin')} />;
     case 'pausa': return <Retomar name={user.nombre} idx={idx} onResume={() => { track('retomar'); go(idx === 0 && !a.pais ? 'bienvenida' : 'alta'); }} />;
     case 'fin': return <Fin />;
     default: return null;
@@ -91,40 +95,6 @@ export default function App() {
 }
 
 const TITLES = { registro: 'Registro', codigo: 'Código de verificación', bienvenida: 'Bienvenida', 'pais-no': 'Todavía no llegamos', 'pais-aviso': 'Aviso guardado', cargando: 'Armando tu ficha (carga)', ficha: 'Esto es lo que entendimos', lista: 'Configuración lista', pausa: 'Retomar configuración' };
-
-/* ---------------- Marco del alta ---------------- */
-function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, onExit, help, closeHelp, helpCtx }) {
-  const z = useFit(800);
-  return (
-    <div className="stage">
-      <FakeApp name={name} />
-      <div className="veil" />
-      <div className="modal" style={z < 1 ? { zoom: z } : null}>
-        <div className="mhead">
-          <div className="mbar">
-            <Logo /><span className="sep" /><span className="t-small">Configura tu cuenta</span>
-            <span className="spacer" />
-            <button className="btn btn-text btn-s" onClick={onHelp}>¿Dudas?</button>
-            <button className="btn btn-secondary btn-s" onClick={onExit}>Guardar y salir</button>
-          </div>
-          <div className="stages" style={{ gridTemplateColumns: `repeat(${STAGES.length}, 1fr)` }}>
-            {STAGES.map((s, i) => (
-              <div key={s}>
-                <div className="seg-track"><div className="seg-fill" style={{ width: `${i < stageIdx ? 100 : i === stageIdx ? Math.round(fill * 100) : 0}%` }} /></div>
-                <div className={`seg-label${i <= stageIdx ? ' on' : ''}`}>{s}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="mbody">
-          <div className={`area${wide ? ' wide' : ''}`}>{children}</div>
-          {footer && <div className={`mfoot${wide ? ' wide' : ''}`}>{footer}</div>}
-        </div>
-        {help && <Assistant step={helpCtx[0]} stepNumber={helpCtx[1]} email={helpCtx[2].correo} name={helpCtx[2].nombre} onClose={closeHelp} />}
-      </div>
-    </div>
-  );
-}
 
 /* ---------------- Inicio de la prueba (moderador) ---------------- */
 function Inicio({ onStart }) {
@@ -134,7 +104,7 @@ function Inicio({ onStart }) {
       <div className="center-card">
         <Logo />
         <h1 className="t-l">Prueba del alta</h1>
-        <p className="t-body">Escribe un código para identificar a la persona que hará la prueba. Medimos cuánto se demora en cada pregunta, desde el registro hasta que su cuenta queda lista.</p>
+        <p className="t-body">Escribe un código para identificar a la persona que hará la prueba. Medimos el tiempo en dos partes: el alta (del registro a la cuenta lista) y la validación de la empresa (del SII a la empresa aprobada).</p>
         <TextField label="Código del participante" value={code} onChange={setCode} placeholder="Ej: P01" autoFocus onEnter={() => onStart(code)} />
         <button className="btn btn-primary btn-block" onClick={() => onStart(code)}>Comenzar prueba</button>
         <a className="t-small" href="#moderador" style={{ color: 'var(--texto-2)' }}>Ver resultados de pruebas anteriores</a>
@@ -373,7 +343,7 @@ function Ficha({ a, loading, onLoaded, onEdit }) {
 }
 
 /* ---------------- Celebración ---------------- */
-function Lista({ a, name, onEnd }) {
+function Lista({ a, name, onValidate, onEnd }) {
   const z = useFit(820);
   const conf = useMemo(() => Array.from({ length: 36 }, (_, i) => ({ left: Math.random() * 100, delay: Math.random() * 4, dur: 5 + Math.random() * 5, c: ['#ff5b2e', '#a78bfa', '#5c8ff2', '#f9bf2e', '#12a37a'][i % 5], w: 6 + Math.random() * 6 })), []);
   return (
@@ -402,8 +372,8 @@ function Lista({ a, name, onEnd }) {
         </div>
         <div style={{ height: 28 }} />
         <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn btn-primary" onClick={() => { track('final', 'tour'); onEnd(); }}>Hacer el tour guiado · 3 min</button>
-          <button className="btn btn-text" style={{ padding: '0 16px' }} onClick={() => { track('final', 'panel'); onEnd(); }}>Ir directo al panel</button>
+          <button className="btn btn-primary" onClick={() => { track('final', 'validar'); onValidate(); }}>Validar mi empresa ahora</button>
+          <button className="btn btn-text" style={{ padding: '0 16px' }} onClick={() => { track('final', 'despues'); onEnd(); }}>Lo hago después</button>
         </div>
       </div>
     </div>
