@@ -263,7 +263,7 @@ input, textarea { font: inherit; color: inherit; }
 .fase-row th { background: var(--superficie); color: var(--texto) !important; font-weight: 600 !important; }
 
 /* ---------- Mobile (mismo diseño que la página «10 · Mobile» de Figma) ---------- */
-.stage-now, .tabbar, .app-topbar { display: none; }
+.m-progress, .tabbar, .app-topbar { display: none; }
 @keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (max-width: 900px) {
   html, body, #root { height: auto; min-height: 100%; }
@@ -280,7 +280,9 @@ input, textarea { font: inherit; color: inherit; }
   .mbar .sep, .mbar > .t-small { display: none; }
   .stages { padding: 12px 0 0; gap: 6px; }
   .seg-label { display: none; }
-  .stage-now { display: block; margin-top: 10px; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+  .stages { display: none; }
+  .m-progress { display: block; margin-top: 12px; height: 4px; border-radius: 4px; background: var(--suave); overflow: hidden; }
+  .m-progress > div { height: 100%; border-radius: 4px; background: var(--naranja); transition: width .45s cubic-bezier(.2,.8,.2,1); }
   .mbody { padding: 20px 20px 132px; overflow: visible; display: block; }
   .area, .area.wide { max-width: none; overflow: visible; }
   .mfoot, .mfoot.wide { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-width: none; flex-wrap: wrap; gap: 10px; background: var(--base); border-top: 1px solid var(--borde); padding: 12px 20px calc(16px + env(safe-area-inset-bottom)); }

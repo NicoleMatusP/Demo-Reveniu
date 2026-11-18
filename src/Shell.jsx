@@ -25,7 +25,7 @@ export function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, on
               </div>
             ))}
           </div>
-          <div className="stage-now">{stages[stageIdx]} · {stageIdx + 1} de {stages.length}</div>
+          <div className="m-progress" role="progressbar" aria-valuenow={Math.round(((stageIdx + fill) / stages.length) * 100)}><div style={{ width: `${((stageIdx + fill) / stages.length) * 100}%` }} /></div>
         </div>
         <div className="mbody">
           <div className={`area${wide ? ' wide' : ''}`}>{children}</div>
