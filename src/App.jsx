@@ -315,7 +315,7 @@ function Ficha({ a, loading, onLoaded, onEdit }) {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span className="t-l" style={{ fontSize: 28 }}>{org}</span><span className="tag ok" style={{ background: '#fff' }}>Modo prueba</span></div>
             <span className="t-small">{a.industria === 'Otra' ? a.industriaOtra : a.industria} · {a.rol === 'Otro' ? a.rolOtro : a.rol}</span>
-            {sitio && <span className="t-help" style={{ display: 'flex', gap: 6, alignItems: 'center' }}><Link2 size={14} />{a.sitio}</span>}
+            {sitio && <span className="t-help" style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}><Link2 size={14} style={{ flex: 'none', marginTop: 2 }} />{a.sitio}</span>}
           </div>
           {sitio && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}><span className="t-help">Tu marca</span><div style={{ display: 'flex', gap: 6 }}>{['#2a5ce3', '#f9bf2e', '#171c29', '#ffffff'].map((c) => <span key={c} style={{ width: 22, height: 22, borderRadius: '50%', background: c, border: '1px solid var(--borde)' }} />)}</div></div>}
         </div>
