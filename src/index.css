@@ -297,7 +297,13 @@ input, textarea { font: inherit; color: inherit; }
   /* Contenido */
   .options, .options.three, .ficha-grid, .logros, .garantias, .vsteps, .leyendo, .resumen { grid-template-columns: 1fr; }
   .dato { border-right: 0 !important; }
-  .ficha-head { flex-wrap: wrap; padding: 16px 20px; }
+  .ficha-head { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 14px 12px; padding: 20px; }
+  .ficha-head > .ficha-logo { grid-row: 1; width: 48px; height: 48px; font-size: 19px; }
+  .ficha-head > div:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  .ficha-head > div:nth-child(3) { grid-column: 2; grid-row: 1; justify-self: end; }
+  .ficha-head .t-l { font-size: 24px !important; }
+  .ficha-head > div:nth-child(2) > div:first-child { flex-wrap: wrap; row-gap: 6px !important; }
+  .ficha-head .tag { white-space: nowrap; }
   .leyendo-ilus { display: none; }
   .vband { flex-wrap: wrap; padding: 16px 20px; }
   .vbody { padding: 18px 20px; }
