@@ -22,6 +22,7 @@
   --agente-fondo: #efe9ff;
   --sombra-modal: 0 40px 80px -30px rgba(13, 14, 16, 0.28);
   --radio: 12px;
+  --cielo: #d6e7f8; /* color sólido claro: sin degradados en las pantallas (solo en ilustraciones) */
   font-family: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
   color: var(--texto);
   background: var(--lienzo);
@@ -170,13 +171,13 @@ input, textarea { font: inherit; color: inherit; }
 
 /* ---------- Ficha ---------- */
 .ficha { border: 1px solid var(--borde); border-radius: 20px; overflow: hidden; background: var(--base); box-shadow: 0 12px 32px -12px rgba(13,14,16,.08); }
-.ficha-head { display: flex; align-items: center; gap: 18px; padding: 18px 28px; background: linear-gradient(90deg, #d6e7f8 0%, #edf3fb 55%, #fff0eb 100%); }
+.ficha-head { display: flex; align-items: center; gap: 18px; padding: 18px 28px; background: var(--cielo); }
 .ficha-logo { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 22px; background: #2a5ce3; box-shadow: 0 10px 22px -8px rgba(26,51,128,.45); flex: none; }
 .ficha-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
 .dato { padding: 13px 24px; border-top: 1px solid var(--borde); display: flex; flex-direction: column; gap: 3px; min-height: 80px; }
 .dato:not(:nth-child(3n)) { border-right: 1px solid var(--borde); }
-.skeleton { height: 10px; border-radius: 6px; background: linear-gradient(90deg, var(--suave) 0%, #f7f8fa 50%, var(--suave) 100%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
-@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.skeleton { height: 10px; border-radius: 6px; background: var(--suave); animation: latido 1.2s ease-in-out infinite; }
+@keyframes latido { 50% { opacity: .5; } }
 .ficha-foot { display: flex; align-items: center; gap: 10px; padding: 12px 24px; border-top: 1px solid var(--borde); background: var(--superficie); font-size: 14px; }
 
 /* ---------- Editar desde la ficha ---------- */
@@ -188,7 +189,7 @@ input, textarea { font: inherit; color: inherit; }
 .edit-foot { display: flex; align-items: center; gap: 10px; padding: 16px 32px 20px; border-top: 1px solid var(--borde); }
 
 /* ---------- Celebración ---------- */
-.celebra { position: fixed; inset: 0; display: grid; place-items: center; background: radial-gradient(60% 60% at 20% 15%, #d6e7f8 0%, rgba(214,231,248,0) 70%), radial-gradient(40% 50% at 85% 85%, rgba(255,91,46,.12) 0%, rgba(255,91,46,0) 70%), var(--lienzo); overflow: hidden; }
+.celebra { position: fixed; inset: 0; display: grid; place-items: center; background: var(--cielo); overflow: hidden; }
 .confeti { position: absolute; border-radius: 2px; animation: caer linear infinite; top: -20px; }
 @keyframes caer { to { transform: translateY(110vh) rotate(540deg); } }
 .premio { position: relative; width: min(720px, calc(100% - 32px)); background: var(--base); border: 1px solid var(--borde); border-radius: 28px; box-shadow: 0 30px 60px -20px rgba(13,14,16,.18); padding: 48px 56px; display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -239,7 +240,7 @@ input, textarea { font: inherit; color: inherit; }
 .barra > div { height: 100%; background: var(--texto); border-radius: 4px; transition: width .5s cubic-bezier(.2,.8,.2,1); }
 
 .vpanel { border: 1px solid var(--borde); border-radius: 18px; overflow: hidden; background: var(--base); }
-.vband { display: flex; align-items: center; gap: 16px; padding: 18px 28px; background: linear-gradient(90deg, #d6e7f8 0%, #edf3fb 60%, #fff0eb 100%); }
+.vband { display: flex; align-items: center; gap: 16px; padding: 18px 28px; background: var(--cielo); }
 .vbody { padding: 22px 28px; }
 .vavatar { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-weight: 600; font-size: 15px; flex: none; }
 .vsteps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }

@@ -180,7 +180,7 @@ function Codigo({ email, onBack, onDone }) {
   };
   const verify = () => { if (vals.join('') === CODE) onDone(); else { setError(true); track('codigo_incorrecto'); } };
   return (
-    <div className="stage" style={{ background: 'radial-gradient(60% 60% at 15% 10%, #d6e7f8, transparent 70%), var(--lienzo)' }}>
+    <div className="stage" style={{ background: 'var(--lienzo)' }}>
       {mail && (
         <div className="pop mail-toast" style={{ position: 'fixed', top: 20, right: 20, width: 340, background: '#fff', border: '1px solid var(--borde)', borderRadius: 14, boxShadow: 'var(--sombra-modal)', padding: 16, display: 'flex', gap: 12 }}>
           <Mail size={20} />
@@ -208,7 +208,7 @@ function Codigo({ email, onBack, onDone }) {
 
 function Bienvenida({ name, onStart, onLater }) {
   return (
-    <div className="stage" style={{ background: 'radial-gradient(60% 60% at 15% 10%, #d6e7f8, transparent 70%), radial-gradient(40% 40% at 90% 90%, rgba(255,91,46,.10), transparent 70%), var(--lienzo)' }}>
+    <div className="stage" style={{ background: 'var(--lienzo)' }}>
       <div className="center-card fade-in" style={{ width: 'min(640px,100%)' }}>
         <span className="tag ok">Cuenta creada · modo prueba</span>
         <h1 className="t-l">Hola, {name || 'hola'}. Qué bueno tenerte aquí.</h1>
