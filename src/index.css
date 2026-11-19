@@ -22,7 +22,7 @@
   --agente-fondo: #efe9ff;
   --sombra-modal: 0 40px 80px -30px rgba(13, 14, 16, 0.28);
   --radio: 12px;
-  --cielo: #d6e7f8; /* color sólido claro: sin degradados en las pantallas (solo en ilustraciones) */
+  --cielo: #eaf3fc; /* color sólido claro: sin degradados en las pantallas (solo en ilustraciones) */
   font-family: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
   color: var(--texto);
   background: var(--lienzo);
