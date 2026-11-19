@@ -262,6 +262,44 @@ input, textarea { font: inherit; color: inherit; }
 .resumen { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .fase-row th { background: var(--superficie); color: var(--texto) !important; font-weight: 600 !important; }
 
+/* ---------- Links de texto junto a los botones ---------- */
+.flink { font-size: 14px; font-weight: 500; color: var(--texto); text-decoration: underline; text-underline-offset: 3px; }
+.mfoot .flink { margin-right: 12px; }
+.help-ico { display: none; }
+
+/* ---------- 2.01 · documentos del SII ---------- */
+.sii-grid { display: grid; grid-template-columns: 1fr 229px; gap: 32px; align-items: stretch; }
+.sii-campos { display: flex; flex-direction: column; gap: 20px; }
+.sii-docs { background: var(--superficie); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.sii-docs-toggle { display: none; }
+.sii-docs-lista { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.sii-docs-lista li { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1.4; }
+.garantia-m { display: none; }
+
+/* ---------- 2.01d–h · subir documentos y corrección ---------- */
+.doc-lista { border: 1px solid var(--borde); border-radius: 14px; overflow: hidden; background: var(--base); }
+.doc-fila { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--borde); min-height: 56px; }
+.doc-fila:first-child { border-top: 0; }
+.doc-fila.correccion { align-items: flex-start; padding: 14px 16px; }
+.doc-fila .flink { margin: 0; padding: 6px 2px; }
+.doc-ico { width: 34px; height: 34px; border-radius: 9px; background: var(--superficie); display: grid; place-items: center; flex: none; color: var(--texto-2); }
+.doc-progreso { width: 130px; display: flex; flex-direction: column; gap: 4px; flex: none; }
+.doc-progreso .barra { margin: 0; height: 4px; }
+.ayuda-linea { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; font-size: 13px; line-height: 1.45; color: var(--texto-2); }
+.ayuda-linea > svg { flex: none; margin-top: 2px; }
+.ayuda-linea .flink { font-size: 13px; padding: 0; display: inline; white-space: nowrap; }
+
+/* ---------- Guías «Ver cómo…» ---------- */
+.guia-veil { background: rgba(13,14,16,.22); }
+.guia-ctx { display: inline-flex; width: fit-content; padding: 6px 10px; border-radius: 999px; background: var(--superficie); font-size: 13px; font-weight: 500; color: var(--texto-2); margin-bottom: 8px; }
+.guia-paso { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--borde); }
+.guia-paso:last-of-type { border-bottom: 0; }
+.guia-n { width: 24px; height: 24px; border-radius: 50%; background: var(--superficie); display: grid; place-items: center; font-size: 12px; font-weight: 500; flex: none; }
+.guia-acciones { display: flex; gap: 10px; padding: 16px 20px 20px; border-top: 1px solid var(--borde); }
+.guia-acciones .btn { flex: 1; text-decoration: none; color: var(--texto); }
+.guia-acciones .btn-primary { color: #fff; }
+.bubble { overflow-wrap: anywhere; }
+
 /* ---------- Mobile (mismo diseño que la página «10 · Mobile» de Figma) ---------- */
 .m-progress, .tabbar, .app-topbar { display: none; }
 @keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -358,4 +396,29 @@ input, textarea { font: inherit; color: inherit; }
   .toast { bottom: 104px; }
   .tip { width: min(300px, calc(100vw - 32px)); }
   .mod { margin: 20px auto; padding: 0 16px 40px; }
+
+  /* Cambios de la revisión del 19-nov */
+  .help-txt { display: none; }
+  .help-ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; margin-left: auto; }
+  .mbar .spacer { display: none; }
+  .mfoot .flink { margin: 0 0 10px; }
+  .sii-grid { grid-template-columns: 1fr; gap: 28px; }
+  .sii-campos { gap: 22px; }
+  .sii-docs { padding: 12px 14px; gap: 0; border-radius: 12px; }
+  .sii-docs-t { display: none; }
+  .sii-docs-toggle { display: flex; align-items: center; gap: 8px; width: 100%; }
+  .sii-docs-lista { display: none; }
+  .sii-docs.open .sii-docs-lista { display: flex; margin-top: 12px; gap: 10px; }
+  .garantias { display: none; }
+  .garantia-m { display: flex; align-items: center; gap: 10px; }
+  .doc-ico { display: none; }
+  .doc-fila { padding: 12px 12px 12px 16px; }
+  .doc-fila.correccion { flex-wrap: wrap; }
+  .doc-fila.correccion > div:nth-child(2) { flex: 1 1 100% !important; }
+  .doc-fila.correccion .tag { order: -1; }
+  .doc-progreso { width: 96px; }
+  .leyendo-ilus { display: grid !important; height: 164px; padding: 0; overflow: hidden; }
+  .leyendo-ilus .hoja { transform: scale(.58); }
+  .leyendo-lista { padding: 18px 20px 14px; }
+  .guia-acciones { padding: 16px 20px calc(20px + env(safe-area-inset-bottom)); }
 }

@@ -1,20 +1,37 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check, CircleDollarSign, Clock, Copy, Eye, FileText, House, IdCard, Info, Lock, MoreHorizontal, Package, RefreshCw, ScanFace, Shield, Sparkles, Users, X } from 'lucide-react';
+import { Check, ChevronDown, CircleDollarSign, Clock, Copy, Eye, FileText, House, IdCard, Info, Lock, MoreHorizontal, Package, RefreshCw, RotateCw, ScanFace, Shield, Sparkles, Upload, Users, X } from 'lucide-react';
 import { Shell } from './Shell.jsx';
-import { Options, Ring, TextField } from './ui.jsx';
+import { Chips, Options, Ring, TextArea, TextField } from './ui.jsx';
 import { G } from './glossary.jsx';
 import { endPhase, enterStep, finishSession, track } from './metrics.js';
 
 /* Flujo 2 · Validación de empresa (Figma 2.01 → 2.06). */
 
 export const V_STAGES = ['Datos de la empresa', 'Representante legal', 'Cuenta bancaria', 'Revisión'];
-const DOCS = ['e-RUT', 'Carpeta tributaria', 'Representantes legales', 'Inicio de actividades y giro', 'Declaraciones de IVA (F29)'];
+const DOCS = ['e-RUT', 'Carpeta tributaria', 'Representantes legales', 'Inicio de actividades', 'Declaraciones de IVA (F29)'];
+// Dónde encontrar cada documento en sii.cl (2.01d · Subir documentos)
+const DOC_RUTA = {
+  'e-RUT': 'Mi SII › Datos de la empresa › e-RUT',
+  'Carpeta tributaria': 'Mi SII › Carpeta tributaria electrónica',
+  'Representantes legales': 'En la carpeta tributaria, sección «Representantes»',
+  'Inicio de actividades': 'Mi SII › Datos de la empresa › Inicio de actividades',
+  'Declaraciones de IVA (F29)': 'Servicios online › IVA › últimos 12 meses',
+};
+const DOC_ARCHIVO = {
+  'e-RUT': 'e-RUT_empresa.pdf', 'Carpeta tributaria': 'carpeta_tributaria.pdf', 'Representantes legales': 'representantes.pdf',
+  'Inicio de actividades': 'inicio_actividades.pdf', 'Declaraciones de IVA (F29)': '12 archivos',
+};
+const DATOS_SII = ['Giro', 'Dirección', 'Representante legal', 'Tipo de sociedad', 'Régimen tributario', 'Otro'];
 const BANCOS = ['Banco de Chile', 'Banco Estado', 'Santander', 'BCI', 'Scotiabank', 'Itaú', 'Banco Security', 'Banco Falabella'];
 
 const TITLES = {
   'v-sii': '2.01 · Conecta tu empresa con el SII',
   'v-leyendo': '2.01b · Leyendo el SII (carga)',
   'v-datos': '2.01c · Datos encontrados en el SII',
+  'v-subir': '2.01d · Subir documentos',
+  'v-enviados': '2.01f · Documentos enviados',
+  'v-nocalza': '2.01g · ¿Qué no calza?',
+  'v-correccion': '2.01h · Corrección enviada',
   'v-rep': '2.02 · ¿Eres el representante legal?',
   'v-identidad': '2.02 · Verificando identidad (simulado)',
   'v-invitada': '2.02c · Invitación enviada',
@@ -52,6 +69,11 @@ export default function Validacion({ user, a, onBack, onDone }) {
   const [inv, setInv] = useState({ nombre: '', contacto: '' });
   const [banco, setBanco] = useState({ banco: '', tipo: 'Cuenta corriente', numero: '', correo: user.correo || '' });
   const [aviso, setAviso] = useState(true);
+  const [verDocs, setVerDocs] = useState(false);
+  const [guia, setGuia] = useState(null); // 'descargar' | 'actualizar'
+  const [subidas, setSubidas] = useState({}); // doc -> { estado: 'subiendo'|'listo'|'error', pct }
+  const [manual, setManual] = useState(false);
+  const [nc, setNc] = useState({ tipo: 'Hay datos que cambiaron', datos: [], comentario: '' });
 
   const org = a.org?.trim() || 'Academia Andes SpA';
   const giro = a.industria === 'Otra' ? (a.industriaOtra || 'Servicios') : (a.industria || 'Enseñanza de idiomas');
@@ -66,7 +88,24 @@ export default function Validacion({ user, a, onBack, onDone }) {
     name: user.nombre, stageIdx, fill, stages: V_STAGES, proceso: 'Valida tu empresa',
     onHelp: () => { track('ayuda', screen); setHelp(true); }, help, closeHelp: () => setHelp(false), helpCtx: [title, stageIdx + 1, user],
     onExit: () => { track('guardar_y_salir', screen); setLast(screen); go('v-pausa'); },
+    extra: guia ? <Guia kind={guia} dato={nc.datos[0] || 'Dirección'} onClose={() => setGuia(null)} /> : null,
   });
+  const abrirGuia = (k) => { track('ver_guia', k); setGuia(k); };
+  const subir = (d) => {
+    const falla = d === 'Inicio de actividades' && !subidas[d]; // el primer intento muestra el error de archivo ilegible
+    track(subidas[d]?.estado === 'error' ? 'reintentar_pdf' : 'subir_pdf', d);
+    setSubidas((p) => ({ ...p, [d]: { estado: 'subiendo', pct: 0 } }));
+    let pct = 0;
+    const t = setInterval(() => {
+      pct += 20;
+      if (pct >= 100) {
+        clearInterval(t);
+        if (falla) track('pdf_ilegible', d);
+        setSubidas((p) => ({ ...p, [d]: { estado: falla ? 'error' : 'listo', pct: 100 } }));
+      } else setSubidas((p) => ({ ...p, [d]: { estado: 'subiendo', pct } }));
+    }, 300);
+  };
+  const fichaSII = { Giro: giro, 'Dirección': 'Providencia 1208, of. 402', 'Representante legal': repName, 'Tipo de sociedad': 'Sociedad por Acciones', 'Régimen tributario': 'Pro Pyme General', Otro: '—' };
 
   let body;
   switch (screen) {
@@ -81,30 +120,37 @@ export default function Validacion({ user, a, onBack, onDone }) {
       body = (
         <Shell {...shellProps(0, 0.25, 'Conecta tu empresa con el SII')}
           footer={<>
-            <button className="btn btn-text t-help note" style={{ textDecoration: 'underline' }} onClick={() => { track('subir_documentos'); setToast('En esta prueba seguimos con la conexión al SII.'); }}>Prefiero subir los documentos yo</button>
+            <button className="btn btn-text flink" onClick={() => { track('subir_documentos'); setManual(true); go('v-subir'); }}>Prefiero subir los documentos yo</button>
             <button className="btn btn-secondary" onClick={() => { track('atras', 'v-sii'); onBack(); }}>Atrás</button>
             <button className="btn btn-primary" disabled={!listo} onClick={conectar}>Conectar con el SII</button>
           </>}>
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column' }}>
             <h1 className="t-l q-title"><G>Conecta tu empresa con el SII</G></h1>
             <p className="t-body q-sub">Con el RUT y la clave tributaria de tu empresa traemos solos los documentos que necesitamos para validarla. No tienes que subir nada.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <TextField label="RUT de la empresa" value={rut} onChange={(v) => { setRut(formatear(v)); setTried(false); }} placeholder="76.543.210-3" autoFocus
-                error={tried && !okRut && 'Revisa el RUT: el dígito verificador no calza.'} help={okRut ? org : 'Con puntos y guion, como aparece en tu e-RUT.'} />
-              <TextField label="Clave tributaria del SII" type="password" value={clave} onChange={setClave} help="La misma con que entras a sii.cl. No es tu ClaveÚnica." />
+            <div className="sii-grid">
+              <div className="sii-campos">
+                <TextField label="RUT de la empresa" value={rut} onChange={(v) => { setRut(formatear(v)); setTried(false); }} placeholder="76.543.210-3" autoFocus
+                  error={tried && !okRut && 'Revisa el RUT: el dígito verificador no calza.'} help={okRut ? org : 'Con puntos y guion, como aparece en tu e-RUT.'} />
+                <TextField label="Clave tributaria del SII" type="password" value={clave} onChange={setClave} help="La misma con que entras a sii.cl. No es tu ClaveÚnica." />
+              </div>
+              <div className={`sii-docs${verDocs ? ' open' : ''}`}>
+                <div className="sii-docs-t t-label">Lo que traemos del SII, en solo lectura</div>
+                <button className="sii-docs-toggle" aria-expanded={verDocs} onClick={() => { if (!verDocs) track('ver_documentos'); setVerDocs(!verDocs); }}>
+                  <FileText size={16} /><span className="t-label" style={{ flex: 1, textAlign: 'left' }}>5 documentos, solo lectura</span>
+                  <span className="t-help" style={{ textDecoration: 'underline', color: 'var(--texto)' }}>{verDocs ? 'Ocultar' : 'Ver cuáles'}</span>
+                  <ChevronDown size={16} style={{ transform: verDocs ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                </button>
+                <ul className="sii-docs-lista">{DOCS.map((d) => <li key={d}><Check size={14} color="var(--texto-2)" />{d}</li>)}</ul>
+              </div>
             </div>
-            <div className="gap-m" />
-            <div className="sii-docs">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FileText size={16} /><span className="t-label" style={{ flex: 1 }}>Lo que traemos del SII, en solo lectura</span><span className="t-help">5 documentos</span></div>
-              <div className="doc-chips">{DOCS.map((d) => <span key={d} className="doc-chip"><FileText size={13} />{d}</span>)}</div>
-            </div>
-            <div className="gap-m" />
+            <div className="gap-l" />
             <div className="garantias">
               {[[Eye, 'Solo leemos', 'No presentamos ni firmamos nada en tu nombre.'], [Lock, 'Cifrada', 'Tu clave se guarda cifrada y nadie del equipo la ve.'], [Shield, 'Tú decides', 'Puedes desconectar el SII cuando quieras.']].map(([I, t, d]) => (
                 <div key={t} style={{ display: 'flex', gap: 10 }}><span className="ico-chip"><I size={15} /></span><div><div className="t-label">{t}</div><div className="t-help">{d}</div></div></div>
               ))}
             </div>
-            <div className="gap-m" />
+            <div className="garantia-m"><span className="ico-chip"><Lock size={15} /></span><span className="t-help">Solo leemos, tu clave va cifrada y puedes desconectar el SII cuando quieras.</span></div>
+            <div className="gap-l" />
             <button className={`check-row${consent ? ' on' : ''}`} onClick={() => setConsent(!consent)} aria-pressed={consent}>
               <span className="mark check">{consent && <Check size={12} color="#fff" strokeWidth={3} />}</span>
               <span className="t-small" style={{ color: 'var(--texto)' }}><G>Autorizo a Reveniu a consultar estos documentos en el SII para validar mi empresa.</G></span>
@@ -115,13 +161,13 @@ export default function Validacion({ user, a, onBack, onDone }) {
       break;
     }
     case 'v-leyendo':
-      body = <Shell {...shellProps(0, 0.5, 'Leyendo el SII')} footer={<span style={{ height: 46 }} />}><Leyendo org={org} rut={rut} giro={giro} onDone={() => go('v-datos')} /></Shell>;
+      body = <Shell {...shellProps(0, 0.5, 'Leyendo el SII')} footer={null}><Leyendo org={org} rut={rut} giro={giro} onDone={() => go('v-datos')} /></Shell>;
       break;
     case 'v-datos':
       body = (
         <Shell {...shellProps(0, 0.9, 'Datos encontrados en el SII')}
           footer={<>
-            <button className="btn btn-text t-help note" style={{ textDecoration: 'underline' }} onClick={() => { track('algo_no_calza'); go('v-sii'); }}>Algo no calza: corregir</button>
+            <button className="btn btn-text flink" onClick={() => { track('algo_no_calza'); go('v-nocalza'); }}>Algo no calza: corregir</button>
             <button className="btn btn-secondary" onClick={() => { track('atras', 'v-datos'); go('v-sii'); }}>Atrás</button>
             <button className="btn btn-primary" onClick={() => go('v-rep')}>Sí, es mi empresa</button>
           </>}>
@@ -149,12 +195,134 @@ export default function Validacion({ user, a, onBack, onDone }) {
         </Shell>
       );
       break;
+    case 'v-subir': {
+      const listos = DOCS.filter((d) => subidas[d]?.estado === 'listo').length;
+      body = (
+        <Shell {...shellProps(0, 0.4 + listos * 0.1, 'Sube los documentos de tu empresa')}
+          footer={<>
+            <button className="btn btn-secondary" onClick={() => { track('atras', 'v-subir'); setManual(false); go('v-sii'); }}>Atrás</button>
+            <button className="btn btn-primary" disabled={listos < DOCS.length} onClick={() => { track('documentos_enviados'); go('v-enviados'); }}>Enviar documentos</button>
+          </>}>
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column' }}>
+            <h1 className="t-l q-title">Sube los documentos de tu empresa</h1>
+            <p className="t-body q-sub">Los descargas desde sii.cl con tu clave tributaria. Una persona de nuestro equipo los revisa en menos de 1 día hábil.</p>
+            <div className="doc-lista">
+              {DOCS.map((d) => {
+                const s = subidas[d];
+                return (
+                  <div key={d} className="doc-fila">
+                    <span className="doc-ico">{s?.estado === 'listo' ? <Check size={16} color="var(--ok-texto)" /> : <FileText size={16} />}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="t-label">{d}</div>
+                      {s?.estado === 'error'
+                        ? <div className="t-help" style={{ color: 'var(--late-texto)' }}>No pudimos leerlo. Sube el PDF original, no una foto.</div>
+                        : <div className="t-help">{s?.estado === 'listo' ? `${DOC_ARCHIVO[d]}${d.startsWith('Declaraciones') ? '' : ' · 120 KB'}` : DOC_RUTA[d]}</div>}
+                    </div>
+                    {!s && <button className="btn btn-secondary btn-s" onClick={() => subir(d)}><Upload size={15} />Subir PDF</button>}
+                    {s?.estado === 'subiendo' && <div className="doc-progreso"><span className="t-help">Subiendo… {s.pct}%</span><div className="barra"><div style={{ width: `${s.pct}%` }} /></div></div>}
+                    {s?.estado === 'error' && <button className="btn btn-secondary btn-s" onClick={() => subir(d)}><RotateCw size={15} />Reintentar</button>}
+                    {s?.estado === 'listo' && <button className="btn btn-text flink" onClick={() => { track('cambiar_pdf', d); setSubidas((p) => { const n = { ...p }; delete n[d]; return n; }); }}>Cambiar</button>}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="ayuda-linea"><Info size={15} /><span>{listos ? `${listos} de 5 listos. Puedes guardar y terminar después.` : 'PDF de hasta 10 MB. ¿No sabes dónde están?'}{' '}
+              <button className="flink" onClick={() => abrirGuia('descargar')}>Ver cómo descargarlos</button></span></div>
+          </div>
+        </Shell>
+      );
+      break;
+    }
+    case 'v-enviados':
+      body = (
+        <Shell {...shellProps(0, 1, 'Recibimos tus documentos')} footerStack
+          footer={<>
+            <button className="btn btn-secondary" onClick={() => { track('atras', 'v-enviados'); go('v-subir'); }}>Atrás</button>
+            <button className="btn btn-primary" onClick={() => go('v-rep')}>Seguir con el representante legal</button>
+          </>}>
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="ok-badge"><Check size={24} color="var(--ok-texto)" /></span>
+            <div style={{ height: 20 }} />
+            <h1 className="t-l q-title">Recibimos tus documentos</h1>
+            <p className="t-body q-sub">Una persona de nuestro equipo los revisa en menos de 1 día hábil y te avisamos por correo. Mientras tanto, puedes seguir.</p>
+            <div className="doc-lista">
+              {DOCS.map((d) => (
+                <div key={d} className="doc-fila">
+                  <span className="doc-ico"><FileText size={16} /></span>
+                  <div style={{ flex: 1 }}><div className="t-label">{d}</div><div className="t-help">{d.startsWith('Declaraciones') ? '12 archivos' : 'PDF subido'}</div></div>
+                  <span className="tag due">En revisión</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Shell>
+      );
+      break;
+    case 'v-nocalza': {
+      const noEs = nc.tipo === 'No es mi empresa';
+      body = (
+        <Shell {...shellProps(0, 0.9, '¿Qué no calza?')}
+          footer={<>
+            <button className="btn btn-secondary" onClick={() => { track('atras', 'v-nocalza'); go('v-datos'); }}>Atrás</button>
+            {noEs
+              ? <button className="btn btn-primary" onClick={() => { track('no_es_mi_empresa'); setRut(''); setTried(false); go('v-sii'); }}>Escribir otro RUT</button>
+              : <button className="btn btn-primary" disabled={!nc.datos.length} onClick={() => { track('correccion_enviada', nc.datos.join(', ')); go('v-correccion'); }}>Enviar corrección</button>}
+          </>}>
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column' }}>
+            <h1 className="t-l q-title">¿Qué no calza?</h1>
+            <p className="t-body q-sub">Los datos vienen directo del SII. Cuéntanos qué pasa y lo resolvemos contigo.</p>
+            <Options value={nc.tipo} onChange={(v) => setNc((p) => ({ ...p, tipo: v }))} options={[{ t: 'No es mi empresa', d: 'Me equivoqué de RUT y quiero escribirlo de nuevo.' }, { t: 'Hay datos que cambiaron', d: 'El SII todavía no muestra un cambio reciente.' }]} />
+            {!noEs && (
+              <div className="pop" style={{ display: 'flex', flexDirection: 'column' }}>
+                <div className="gap-l" />
+                <div className="block-label" style={{ fontSize: 14 }}>¿Qué dato cambió?</div>
+                <Chips size="m" multi options={DATOS_SII} value={nc.datos} onChange={(v) => setNc((p) => ({ ...p, datos: v }))} />
+                <div className="gap-l" />
+                <TextArea label="Cuéntanos qué cambió (opcional)" value={nc.comentario} onChange={(v) => setNc((p) => ({ ...p, comentario: v }))} placeholder="Ej: nos cambiamos a Av. Apoquindo 3000, oficina 1204." help="Si puedes, cuéntanos desde cuándo y cuál es el dato nuevo." />
+              </div>
+            )}
+          </div>
+        </Shell>
+      );
+      break;
+    }
+    case 'v-correccion':
+      body = (
+        <Shell {...shellProps(0, 1, 'Recibimos tu corrección')} footerStack
+          footer={<>
+            <button className="btn btn-secondary" onClick={() => { track('atras', 'v-correccion'); go('v-nocalza'); }}>Atrás</button>
+            <button className="btn btn-primary" onClick={() => go('v-rep')}>Seguir con el representante legal</button>
+          </>}>
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="ok-badge"><Check size={24} color="var(--ok-texto)" /></span>
+            <div style={{ height: 20 }} />
+            <h1 className="t-l q-title">Recibimos tu corrección</h1>
+            <p className="t-body q-sub">Una persona de nuestro equipo la revisa en menos de 2 horas hábiles y te avisa por correo. Mientras, puedes seguir con el representante legal.</p>
+            <div className="doc-lista">
+              {nc.datos.map((d, i) => (
+                <div key={d} className="doc-fila correccion">
+                  <span className="doc-ico"><FileText size={16} /></span>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <div className="t-label">{d}</div>
+                    {d !== 'Otro' && <div className="t-help">Según el SII: {fichaSII[d]}</div>}
+                    {i === 0 && nc.comentario.trim() && <div className="t-help">Tu comentario: {nc.comentario.trim()}</div>}
+                  </div>
+                  <span className="tag due">En revisión</span>
+                </div>
+              ))}
+            </div>
+            <div className="ayuda-linea"><Info size={15} /><span>Si el cambio aún no está en el SII, también debes actualizarlo allá.{' '}
+              <button className="flink" onClick={() => abrirGuia('actualizar')}>Ver cómo hacerlo</button></span></div>
+          </div>
+        </Shell>
+      );
+      break;
     case 'v-rep': {
       const okInv = inv.nombre.trim() && inv.contacto.trim().length >= 6;
       body = (
         <Shell {...shellProps(1, invitado ? 0.6 : 0.3, '¿Eres el representante legal?')}
           footer={<>
-            <button className="btn btn-secondary" onClick={() => { track('atras', 'v-rep'); go('v-datos'); }}>Atrás</button>
+            <button className="btn btn-secondary" onClick={() => { track('atras', 'v-rep'); go(manual ? 'v-enviados' : 'v-datos'); }}>Atrás</button>
             {invitado
               ? <button className="btn btn-primary" disabled={!okInv} onClick={() => { track('invitacion_enviada'); go('v-invitada'); }}>Enviar invitación</button>
               : <button className="btn btn-primary" onClick={() => go('v-identidad')}>Verificar mi identidad</button>}
@@ -339,6 +507,46 @@ function Leyendo({ org, rut, giro, onDone }) {
       <div style={{ height: 14 }} />
       <div className="t-help" style={{ display: 'flex', gap: 6, alignItems: 'center' }}><Lock size={13} />Conexión cifrada y de solo lectura. Nunca presentamos ni firmamos nada en tu nombre.</div>
     </div>
+  );
+}
+
+/* ---------- Guías «Ver cómo…» (panel lateral en desktop, hoja en mobile) ---------- */
+const ART = { Giro: 'el giro', 'Dirección': 'la dirección', 'Representante legal': 'el representante legal', 'Tipo de sociedad': 'el tipo de sociedad', 'Régimen tributario': 'el régimen tributario' };
+function Guia({ kind, dato, onClose }) {
+  const g = kind === 'descargar' ? {
+    titulo: 'Cómo descargar tus documentos', sub: 'Desde sii.cl, en unos 10 minutos', ctx: 'Ten a mano el RUT y la clave tributaria de la empresa',
+    pasos: [['Entra a sii.cl', 'Con el RUT de la empresa y su clave tributaria. No es tu ClaveÚnica.'], ['e-RUT', 'Mi SII › Datos de la empresa › e-RUT › Descargar'], ['Carpeta tributaria', 'Servicios online › Carpeta tributaria electrónica › Generar carpeta'], ['Representantes legales', 'Están en la carpeta tributaria, sección «Representantes». Puedes subir la misma carpeta.'], ['Inicio de actividades', 'Mi SII › Datos de la empresa › Inicio de actividades'], ['Declaraciones de IVA (F29)', 'Servicios online › IVA › últimos 12 meses. Un PDF por mes.']],
+    tip: 'Sube el PDF original que descargas del SII. Las fotos o capturas no sirven.',
+  } : {
+    titulo: 'Cómo actualizar tus datos en el SII', sub: 'El SII es la fuente oficial de tu empresa', ctx: `Dato a actualizar: ${dato}`,
+    pasos: [['Entra a sii.cl', 'Con el RUT de la empresa y su clave tributaria.'], ['Busca la actualización de datos', 'Servicios online › RUT e inicio de actividades › Modificación y actualización de la información'], [`Cambia ${ART[dato] || 'el dato'} y confirma`, 'Usa el mismo dato que nos contaste.'], ['Nosotros hacemos el resto', 'Cuando el SII muestre el cambio, actualizamos tu cuenta y te avisamos por correo.']],
+    tip: 'Algunos cambios, como el representante legal o el tipo de sociedad, pueden pedir una escritura o ir a una oficina del SII.',
+  };
+  return (
+    <>
+      <div className="drawer-veil guia-veil" onClick={onClose} />
+      <aside className="drawer guia" role="dialog" aria-label={g.titulo}>
+        <div className="drawer-head">
+          <span className="ico-chip" style={{ width: 32, height: 32 }}><FileText size={16} /></span>
+          <div style={{ flex: 1 }}><div className="t-label" style={{ fontSize: 16, fontWeight: 600 }}>{g.titulo}</div><div className="t-help">{g.sub}</div></div>
+          <button aria-label="Cerrar" onClick={onClose}><X size={18} /></button>
+        </div>
+        <div className="drawer-body" style={{ gap: 0 }}>
+          <span className="guia-ctx">{g.ctx}</span>
+          {g.pasos.map(([t, d], i) => (
+            <div key={t} className="guia-paso">
+              <span className="guia-n">{i + 1}</span>
+              <div><div className="t-label" style={{ fontSize: 15 }}>{t}</div><div className="t-small">{d}</div></div>
+            </div>
+          ))}
+          <div className="aviso" style={{ marginTop: 12, border: 0 }}><Info size={16} /><span className="t-small">{g.tip}</span></div>
+        </div>
+        <div className="guia-acciones">
+          <a className="btn btn-secondary" href="https://www.sii.cl" target="_blank" rel="noreferrer" onClick={() => track('abrir_sii', kind)}>Abrir sii.cl</a>
+          <button className="btn btn-primary" onClick={onClose}>Entendido</button>
+        </div>
+      </aside>
+    </>
   );
 }
 

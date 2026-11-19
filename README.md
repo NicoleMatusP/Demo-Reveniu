@@ -21,10 +21,12 @@ Los resultados se guardan en el navegador donde se hizo la prueba. Descárgalos 
 - «Guardar y salir» → pantalla para retomar donde quedó.
 - Carga animada de la ficha, ficha de la empresa armada con las respuestas (se puede editar cada dato) y pantalla de celebración.
 - Validación de empresa: conexión con el SII (RUT con dígito verificador y clave tributaria), lectura animada de documentos, datos encontrados, representante legal (verificación de identidad simulada o invitación a otra persona), cuenta bancaria, revisión y empresa aprobada en Inicio.
+- Desvíos de la validación: «Prefiero subir los documentos yo» (subida simulada de los 5 PDF, con un error de archivo ilegible en «Inicio de actividades» para probar «Reintentar») y «Algo no calza: corregir» (no es mi empresa → volver a escribir el RUT; datos que cambiaron → corrección enviada).
+- Guías «Ver cómo descargarlos» y «Ver cómo hacerlo»: panel lateral en desktop y hoja desde abajo en mobile, con link a sii.cl.
 
 ## Mobile
 
-El prototipo se adapta solo al abrirlo en un celular (o en una ventana de hasta 900 px de ancho), con el mismo diseño que la página «10 · Mobile» de Figma: pantalla completa, botones fijos abajo, una columna, pills a su ancho natural y las ayudas como hojas que suben desde abajo. Los resultados guardan si la prueba se hizo en Mobile o Desktop (columna `dispositivo`) y el tamaño de la pantalla.
+El prototipo se adapta solo al abrirlo en un celular (o en una ventana de hasta 900 px de ancho), con el mismo diseño que la página «10 · Mobile» de Figma: pantalla completa, botones fijos abajo, una columna, pills a su ancho natural, «¿Dudas?» como botón de ícono, la lista de documentos del SII plegada («Ver cuáles») y las ayudas como hojas que suben desde abajo. Los resultados guardan si la prueba se hizo en Mobile o Desktop (columna `dispositivo`) y el tamaño de la pantalla.
 
 ## Cómo se mide
 

@@ -1,9 +1,10 @@
 import { FakeApp, Logo, useFit } from './ui.jsx';
 import { STAGES } from './steps.jsx';
+import { HelpCircle } from 'lucide-react';
 import Assistant from './Assistant.jsx';
 
 /* ---------------- Marco del alta ---------------- */
-export function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, onExit, help, closeHelp, helpCtx, stages = STAGES, proceso = 'Configura tu cuenta', footerStack = false }) {
+export function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, onExit, help, closeHelp, helpCtx, stages = STAGES, proceso = 'Configura tu cuenta', footerStack = false, extra = null }) {
   const z = useFit(800);
   return (
     <div className="stage">
@@ -14,7 +15,8 @@ export function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, on
           <div className="mbar">
             <Logo /><span className="sep" /><span className="t-small">{proceso}</span>
             <span className="spacer" />
-            <button className="btn btn-text btn-s" onClick={onHelp}>¿Dudas?</button>
+            <button className="btn btn-text btn-s help-txt" onClick={onHelp}>¿Dudas?</button>
+            <button className="help-ico" aria-label="¿Dudas?" onClick={onHelp}><HelpCircle size={20} /></button>
             <button className="btn btn-secondary btn-s" onClick={onExit}>Guardar y salir</button>
           </div>
           <div className="stages" style={{ gridTemplateColumns: `repeat(${stages.length}, 1fr)` }}>
@@ -31,6 +33,7 @@ export function Shell({ name, stageIdx, fill, children, footer, wide, onHelp, on
           <div className={`area${wide ? ' wide' : ''}`}>{children}</div>
           {footer && <div className={`mfoot${wide ? ' wide' : ''}${footerStack ? ' stack' : ''}`}>{footer}</div>}
         </div>
+        {extra}
         {help && <Assistant step={helpCtx[0]} stepNumber={helpCtx[1]} email={helpCtx[2].correo} name={helpCtx[2].nombre} onClose={closeHelp} />}
       </div>
     </div>
