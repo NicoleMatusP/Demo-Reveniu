@@ -7,11 +7,13 @@ import { G } from './glossary.jsx';
 import Moderador from './Moderador.jsx';
 import { endPhase, enterStep, finishSession, saveAnswers, startPhase, startSession, track } from './metrics.js';
 import Validacion from './Validacion.jsx';
+import Planes from './Planes.jsx';
 
 const CODE = 'K7Q2M9';
 
 export default function App() {
-  const [route, setRoute] = useState(() => (location.hash === '#moderador' ? 'moderador' : 'inicio'));
+  const routeOf = () => (location.hash === '#moderador' ? 'moderador' : location.hash === '#planes' ? 'planes' : 'inicio');
+  const [route, setRoute] = useState(routeOf);
   const [screen, setScreen] = useState('inicio');
   const [user, setUser] = useState({ nombre: '', apellido: '', correo: '', clave: '' });
   const [a, setA] = useState(initialAnswers);
@@ -22,7 +24,7 @@ export default function App() {
   const set = (patch) => setA((p) => ({ ...p, ...patch }));
 
   useEffect(() => {
-    const on = () => setRoute(location.hash === '#moderador' ? 'moderador' : 'inicio');
+    const on = () => setRoute(routeOf());
     window.addEventListener('hashchange', on);
     return () => window.removeEventListener('hashchange', on);
   }, []);
@@ -34,6 +36,7 @@ export default function App() {
   useEffect(() => { if (screen === 'alta') STEPS[idx].onEnter?.(a, set); }, [idx, screen]); // eslint-disable-line
 
   if (route === 'moderador') return <Moderador />;
+  if (route === 'planes') return <Planes />;
 
   const go = (s) => setScreen(s);
   const next = () => {
@@ -107,6 +110,7 @@ function Inicio({ onStart }) {
         <p className="t-body">Escribe un código para identificar a la persona que hará la prueba. Medimos el tiempo en dos partes: el alta (del registro a la cuenta lista) y la validación de la empresa (del SII a la empresa aprobada).</p>
         <TextField label="Código del participante" value={code} onChange={setCode} placeholder="Ej: P01" autoFocus onEnter={() => onStart(code)} />
         <button className="btn btn-primary btn-block" onClick={() => onStart(code)}>Comenzar prueba</button>
+        <a className="t-small" href="#planes" style={{ color: 'var(--texto)', fontWeight: 500 }}>Ir a la otra prueba: Productos y planes →</a>
         <a className="t-small" href="#moderador" style={{ color: 'var(--texto-2)' }}>Ver resultados de pruebas anteriores</a>
       </div>
     </div>

@@ -1,4 +1,22 @@
-# Reveniu · Prueba del alta y la validación
+# Reveniu · Pruebas con usuarios
+
+El prototipo tiene **dos pruebas separadas**, cada una con su propio tiempo:
+
+- **Prueba 1 · Alta y validación** (flujos 1 y 2): la URL principal.
+- **Prueba 2 · Productos y planes** (flujo 3): la misma URL terminada en `#planes`.
+
+## Prueba 2 · Productos y planes (`#planes`)
+
+1. Abre el prototipo con `#planes` al final (o desde el enlace de la primera pantalla) y escribe el código de la persona.
+2. La tarea aparece abajo a la izquierda: crear el plan «Inglés B2 · 2027» (matrícula + 10 cuotas, regla propia para el segmento VIP y link con UTM para Instagram).
+3. Después de publicar, la segunda tarea pide archivar «Mensual flexible» y dejar la lista mostrando solo los archivados. Al lograrlo aparece **Terminar**.
+4. Se mide en tres partes: **Crear el plan** (del catálogo a «Publicar plan»), **Link y rastreo** (del link a publicado) y **Tareas en el catálogo** (archivar y filtrar).
+
+Incluye: catálogo con filtros, archivados al final y atenuados, menú ⋯ con duplicar, pausar y archivar (con confirmación y «Deshacer»); asistente del plan con plantillas, productos (y crear uno nuevo), cobros, fechas y matrícula (incluido «Que el cliente elija»), qué incluye, descuentos y prueba gratis, permanencia, reglas si un cobro falla (estándar, editar aquí, desde cero o para un segmento), avisos y cancelación; revisión con «Editar» por sección; link editable con UTM y meta tags; celebración al publicar. En **Ver resultados** se elige el flujo arriba y se descargan los tiempos por separado.
+
+---
+
+# Prueba 1 · Alta y validación
 
 Prototipo en código de los flujos **1 · Onboarding y personalización** y **2 · Verificación de empresa** de Reveniu, para pruebas con usuarios. Mide cuánto se demora cada persona en cada pantalla, con el tiempo del alta y el de la validación por separado.
 

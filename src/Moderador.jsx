@@ -1,17 +1,22 @@
 import { useState } from 'react';
-import { allSessions, clearSessions, download, fmt, phaseMs, PHASES, toCSV } from './metrics.js';
+import { allSessions, clearSessions, download, flowOf, FLOWS, fmt, phaseMs, PHASES, toCSV } from './metrics.js';
 import { Logo } from './ui.jsx';
 
 export default function Moderador() {
-  const [sessions, setSessions] = useState(() => allSessions().reverse());
-  const [open, setOpen] = useState(sessions[0]?.id);
+  const [all, setAll] = useState(() => allSessions().reverse());
+  const [flow, setFlow] = useState(() => all[0] ? flowOf(all[0]) : 'alta');
+  const sessions = all.filter((x) => flowOf(x) === flow);
+  const setSessions = setAll;
+  const F = FLOWS[flow];
+  const [open, setOpen] = useState(all[0]?.id);
   const s = sessions.find((x) => x.id === open);
   const count = (x, t) => x.events.filter((e) => e.type === t).length;
   const avg = (name) => {
     const v = sessions.map((x) => phaseMs(x, name)).filter((m) => m != null);
     return v.length ? { ms: v.reduce((p, c) => p + c, 0) / v.length, n: v.length } : { ms: null, n: 0 };
   };
-  const estado = (x) => phaseMs(x, 'validacion') != null ? <span className="tag ok">Validó la empresa</span>
+  const estado = (x) => flow === 'planes' ? (x.finishedAt ? <span className="tag ok">Terminó las tareas</span> : x.phases?.catalogo ? <span className="tag due">Catálogo sin terminar</span> : x.phases?.link ? <span className="tag due">Link sin publicar</span> : <span className="t-help">Plan sin terminar</span>)
+    : phaseMs(x, 'validacion') != null ? <span className="tag ok">Validó la empresa</span>
     : x.phases?.validacion ? <span className="tag due">Validación sin terminar</span>
     : phaseMs(x, 'alta') != null ? <span className="tag neutral">Solo alta</span>
     : <span className="t-help">Sin terminar</span>;
@@ -19,19 +24,22 @@ export default function Moderador() {
     <div style={{ minHeight: '100%', background: 'var(--lienzo)' }}>
       <div className="mod">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Logo /><span className="sep" /><span className="t-small">Resultados de la prueba · alta y validación</span>
+          <Logo /><span className="sep" /><span className="t-small">Resultados de las pruebas</span>
           <span className="spacer" />
-          <a className="btn btn-secondary btn-s" href="#" onClick={() => setTimeout(() => location.reload())}>Nueva prueba</a>
+          <a className="btn btn-secondary btn-s" href={F.inicio} onClick={() => setTimeout(() => location.reload())}>Nueva prueba</a>
+        </div>
+        <div className="seg" role="tablist" style={{ alignSelf: 'flex-start' }}>
+          {Object.entries(FLOWS).map(([k, f]) => <button key={k} className={k === flow ? 'on' : ''} onClick={() => { setFlow(k); setOpen(all.find((x) => flowOf(x) === k)?.id); }}>{f.label} · {all.filter((x) => flowOf(x) === k).length}</button>)}
         </div>
         <div className="card" style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span className="t-small" style={{ flex: 1 }}>{sessions.length} pruebas guardadas en este navegador. Descárgalas antes de borrar el historial del navegador.</span>
-          <button className="btn btn-secondary btn-s" disabled={!sessions.length} onClick={() => download('pruebas-alta-reveniu.csv', toCSV(sessions))}>Descargar CSV</button>
-          <button className="btn btn-secondary btn-s" disabled={!sessions.length} onClick={() => download('pruebas-alta-reveniu.json', JSON.stringify(sessions, null, 2), 'application/json')}>Descargar JSON</button>
-          <button className="btn btn-text btn-s" disabled={!sessions.length} onClick={() => { if (confirm('¿Borrar todas las pruebas guardadas?')) { clearSessions(); setSessions([]); } }}>Borrar todo</button>
+          <span className="t-small" style={{ flex: 1 }}>{sessions.length} pruebas de «{F.label}» guardadas en este navegador. Descárgalas antes de borrar el historial del navegador.</span>
+          <button className="btn btn-secondary btn-s" disabled={!sessions.length} onClick={() => download(`pruebas-${flow}-reveniu.csv`, toCSV(sessions))}>Descargar CSV</button>
+          <button className="btn btn-secondary btn-s" disabled={!sessions.length} onClick={() => download(`pruebas-${flow}-reveniu.json`, JSON.stringify(sessions, null, 2), 'application/json')}>Descargar JSON</button>
+          <button className="btn btn-text btn-s" disabled={!sessions.length} onClick={() => { if (confirm('¿Borrar todas las pruebas guardadas (de los dos flujos)?')) { clearSessions(); setSessions([]); } }}>Borrar todo</button>
         </div>
         {!!sessions.length && (
-          <div className="resumen">
-            {[['alta', 'Del registro a la cuenta lista'], ['validacion', 'Del SII a la empresa aprobada']].map(([k, d]) => {
+          <div className="resumen" style={{ gridTemplateColumns: `repeat(${F.phases.length}, 1fr)` }}>
+            {F.phases.map((k) => [k, DESC[k]]).map(([k, d]) => {
               const r = avg(k);
               return (
                 <div key={k} className="card">
@@ -47,15 +55,14 @@ export default function Moderador() {
         {!!sessions.length && (
           <div className="card" style={{ padding: 0, overflow: 'auto' }}>
             <table className="table">
-              <thead><tr><th>Participante</th><th>Dispositivo</th><th>Fecha</th><th className="num">Alta</th><th className="num">Validación</th><th className="num">Total</th><th className="num">Atrás</th><th className="num">Ayuda</th><th>Estado</th></tr></thead>
+              <thead><tr><th>Participante</th><th>Dispositivo</th><th>Fecha</th>{F.phases.map((k) => <th key={k} className="num">{PHASES[k]}</th>)}<th className="num">Total</th><th className="num">Atrás</th><th className="num">Ayuda</th><th>Estado</th></tr></thead>
               <tbody>
                 {sessions.map((x) => (
                   <tr key={x.id} onClick={() => setOpen(x.id)} style={{ cursor: 'pointer', background: x.id === open ? 'var(--superficie)' : undefined }}>
                     <td className="t-label">{x.participant}</td>
                     <td>{x.device || 'Desktop'}</td>
                     <td>{new Date(x.startedAt).toLocaleString('es-CL')}</td>
-                    <td className="num">{fmt(phaseMs(x, 'alta'))}</td>
-                    <td className="num">{fmt(phaseMs(x, 'validacion'))}</td>
+                    {F.phases.map((k) => <td key={k} className="num">{fmt(phaseMs(x, k))}</td>)}
                     <td className="num t-label">{fmt(x.totalMs)}</td>
                     <td className="num">{count(x, 'atras')}</td>
                     <td className="num">{count(x, 'ayuda')}</td>
@@ -68,9 +75,9 @@ export default function Moderador() {
         )}
         {s && (
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '16px 20px', display: 'flex', gap: 24, alignItems: 'baseline' }}><span className="t-m" style={{ flex: 1 }}>Detalle · {s.participant}</span><span className="t-small">Alta {fmt(phaseMs(s, 'alta'))} · Validación {fmt(phaseMs(s, 'validacion'))} · Total {fmt(s.totalMs)}</span></div>
-            {['alta', 'validacion'].map((k, n) => {
-              const rows = Object.entries(s.steps).filter(([, v]) => (v.phase || 'alta') === k);
+            <div style={{ padding: '16px 20px', display: 'flex', gap: 24, alignItems: 'baseline' }}><span className="t-m" style={{ flex: 1 }}>Detalle · {s.participant}</span><span className="t-small">{F.phases.map((k) => `${PHASES[k]} ${fmt(phaseMs(s, k))}`).join(' · ')} · Total {fmt(s.totalMs)}</span></div>
+            {F.phases.map((k, n) => {
+              const rows = Object.entries(s.steps).filter(([, v]) => (v.phase || F.phases[0]) === k);
               if (!rows.length) return null;
               const max = Math.max(...rows.map(([, v]) => v.ms), 1);
               return (
@@ -85,7 +92,7 @@ export default function Moderador() {
                         <td>{v.title}</td>
                         <td className="num">{fmt(v.ms)}</td>
                         <td className="num">{v.visits}</td>
-                        <td><div style={{ height: 8, borderRadius: 4, background: 'var(--suave)' }}><div style={{ width: `${(v.ms / max) * 100}%`, height: '100%', borderRadius: 4, background: k === 'alta' ? 'var(--texto)' : 'var(--texto-2)' }} /></div></td>
+                        <td><div style={{ height: 8, borderRadius: 4, background: 'var(--suave)' }}><div style={{ width: `${(v.ms / max) * 100}%`, height: '100%', borderRadius: 4, background: n === 0 ? 'var(--texto)' : n === 1 ? 'var(--naranja)' : 'var(--texto-2)' }} /></div></td>
                       </tr>
                     ))}
                   </tbody>
@@ -107,4 +114,8 @@ export default function Moderador() {
   );
 }
 
-const LABEL = { atras: 'Volvió atrás', ayuda: 'Abrió ¿Dudas?', ayuda_pregunta: 'Preguntó al asistente', ayuda_videollamada: 'Quiso agendar videollamada', videollamada_agendada: 'Agendó videollamada', guardar_y_salir: 'Guardar y salir', retomar: 'Retomó', revisar_sitio: 'Revisó lo leído del sitio', editar_desde_ficha: 'Editó desde la ficha', codigo_incorrecto: 'Código incorrecto', inicio_alta: 'Empezó las preguntas', final: 'Eligió al final', fase_inicio_alta: '▸ Empezó el alta', fase_fin_alta: '■ Terminó el alta', fase_inicio_validacion: '▸ Empezó la validación', fase_fin_validacion: '■ Terminó la validación', rut_invalido: 'RUT inválido', subir_documentos: 'Eligió subir los documentos', subir_pdf: 'Subió un PDF', reintentar_pdf: 'Reintentó un PDF', pdf_ilegible: 'PDF ilegible', cambiar_pdf: 'Cambió un PDF', documentos_enviados: 'Envió los documentos', ver_documentos: 'Abrió la lista de documentos', ver_guia: 'Abrió una guía «Ver cómo…»', abrir_sii: 'Abrió sii.cl desde la guía', no_es_mi_empresa: 'Dijo que no es su empresa', correccion_enviada: 'Envió una corrección', algo_no_calza: 'Dijo que algo no calza', representante: 'Eligió representante', invitacion_enviada: 'Envió invitación', reenviar_invitacion: 'Reenvió invitación', copiar_link: 'Copió el link', cambiar_correo: 'Cambió el correo', activar_cobros_reales: 'Quiso activar cobros reales' };
+const DESC = { alta: 'Del registro a la cuenta lista', validacion: 'Del SII a la empresa aprobada', plan: 'Del catálogo a «Publicar plan»', link: 'Del link a publicado', catalogo: 'Archivar y encontrar archivados' };
+
+const LABEL = {
+  fase_inicio_plan: '▸ Empezó a crear el plan', fase_fin_plan: '■ Terminó el plan', fase_inicio_link: '▸ Empezó el link', fase_fin_link: '■ Publicó el plan', fase_inicio_catalogo: '▸ Empezó las tareas del catálogo', fase_fin_catalogo: '■ Terminó las tareas del catálogo',
+  menu_nuevo: 'Abrió «+ Nuevo»', nuevo_no_disponible: 'Eligió algo fuera de la prueba', plantilla: 'Eligió plantilla', producto_nuevo: 'Creó un producto', cobro_agregado: 'Agregó un cobro', cobro_quitado: 'Quitó un cobro', caracteristica: 'Agregó una característica', segmento: 'Eligió segmento', editar_estandar: 'Editó la regla estándar en el flujo', desde_cero: 'Eligió crear desde cero', editar_desde_revision: 'Editó desde la revisión', utm_abierto: 'Abrió UTM y meta tags', utm_guardado: 'Guardó UTM y meta tags', link_copiado: 'Copió el link', menu_fila: 'Abrió el menú ⋯', duplicar: 'Duplicó', archivar: 'Archivó', deshacer: 'Deshizo', pausar: 'Pausó ventas', restaurar: 'Restauró', filtro: 'Cambió un filtro', buscar: 'Buscó', tarea_ver: 'Abrió la tarea', atras: 'Volvió atrás', ayuda: 'Abrió ¿Dudas?', ayuda_pregunta: 'Preguntó al asistente', ayuda_videollamada: 'Quiso agendar videollamada', videollamada_agendada: 'Agendó videollamada', guardar_y_salir: 'Guardar y salir', retomar: 'Retomó', revisar_sitio: 'Revisó lo leído del sitio', editar_desde_ficha: 'Editó desde la ficha', codigo_incorrecto: 'Código incorrecto', inicio_alta: 'Empezó las preguntas', final: 'Eligió al final', fase_inicio_alta: '▸ Empezó el alta', fase_fin_alta: '■ Terminó el alta', fase_inicio_validacion: '▸ Empezó la validación', fase_fin_validacion: '■ Terminó la validación', rut_invalido: 'RUT inválido', subir_documentos: 'Eligió subir los documentos', subir_pdf: 'Subió un PDF', reintentar_pdf: 'Reintentó un PDF', pdf_ilegible: 'PDF ilegible', cambiar_pdf: 'Cambió un PDF', documentos_enviados: 'Envió los documentos', ver_documentos: 'Abrió la lista de documentos', ver_guia: 'Abrió una guía «Ver cómo…»', abrir_sii: 'Abrió sii.cl desde la guía', no_es_mi_empresa: 'Dijo que no es su empresa', correccion_enviada: 'Envió una corrección', algo_no_calza: 'Dijo que algo no calza', representante: 'Eligió representante', invitacion_enviada: 'Envió invitación', reenviar_invitacion: 'Reenvió invitación', copiar_link: 'Copió el link', cambiar_correo: 'Cambió el correo', activar_cobros_reales: 'Quiso activar cobros reales' };
