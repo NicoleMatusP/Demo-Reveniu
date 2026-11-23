@@ -135,12 +135,12 @@ function InicioPrueba({ onStart }) {
     <div className="stage" style={{ background: 'var(--lienzo)' }}>
       <div className="center-card">
         <Logo />
-        <span className="tag neutral">Prueba 2</span>
+        <span className="tag neutral">Flujo 3</span>
         <h1 className="t-l">Prueba de Productos y planes</h1>
         <p className="t-body">Medimos el tiempo en tres partes: crear un plan (del catálogo a «Publicar plan»), dejar listo su link con UTM y publicarlo, y una tarea en el catálogo (archivar y encontrar lo archivado). Las tareas aparecen abajo a la izquierda.</p>
         <TextField label="Código del participante" value={code} onChange={setCode} placeholder="Ej: P01" autoFocus onEnter={() => onStart(code)} />
         <button className="btn btn-primary btn-block" onClick={() => onStart(code)}>Comenzar prueba</button>
-        <a className="t-small" href="#" onClick={() => setTimeout(() => location.reload())} style={{ color: 'var(--texto)', fontWeight: 500 }}>← Ir a la prueba del alta y la validación</a>
+        <a className="t-small" href="#" onClick={() => setTimeout(() => location.reload())} style={{ color: 'var(--texto)', fontWeight: 500 }}>← Volver al menú de flujos</a>
         <a className="t-small" href="#moderador" style={{ color: 'var(--texto-2)' }}>Ver resultados</a>
       </div>
     </div>
@@ -660,7 +660,7 @@ function FinPrueba() {
         <h1 className="t-l">Gracias, terminaste la prueba</h1>
         <p className="t-body">Guardamos los tiempos en este navegador.</p>
         <a className="btn btn-primary btn-block" href="#moderador">Ver resultados</a>
-        <a className="t-small" href="#planes" onClick={() => setTimeout(() => location.reload())} style={{ color: 'var(--texto-2)' }}>Hacer otra prueba</a>
+        <a className="t-small" href="#" onClick={() => setTimeout(() => location.reload())} style={{ color: 'var(--texto-2)' }}>Elegir otro flujo</a>
       </div>
     </div>
   );

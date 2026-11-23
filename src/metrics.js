@@ -17,8 +17,9 @@ export const PHASES = { alta: 'Alta', validacion: 'Validación de empresa', plan
 
 // Cada prueba es un flujo distinto, con sus propias partes.
 export const FLOWS = {
-  alta: { label: 'Alta y validación', phases: ['alta', 'validacion'], inicio: '#' },
-  planes: { label: 'Productos y planes', phases: ['plan', 'link', 'catalogo'], inicio: '#planes' },
+  alta: { label: '1 · Onboarding', phases: ['alta', 'validacion'], inicio: '#alta' },
+  validacion: { label: '2 · Verificación de empresa', phases: ['validacion'], inicio: '#validacion' },
+  planes: { label: '3 · Productos y planes', phases: ['plan', 'link', 'catalogo'], inicio: '#planes' },
 };
 export const flowOf = (s) => s.flow || 'alta';
 

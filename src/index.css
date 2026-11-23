@@ -541,3 +541,11 @@ input, textarea { font: inherit; color: inherit; }
   .slug > span { padding: 10px 14px 0; }
   .slug input { flex: 1 1 100%; padding: 4px 14px 10px; }
 }
+
+/* ---------- Menú de flujos ---------- */
+.menu-flujos { width: min(720px, 100%); margin: auto; display: flex; flex-direction: column; gap: 24px; padding: 40px 0; }
+.flujos { display: flex; flex-direction: column; gap: 12px; }
+.flujo { display: flex; gap: 16px; align-items: center; padding: 20px 22px; background: var(--base); border: 1px solid var(--borde); border-radius: 16px; color: var(--texto); text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+.flujo:hover { border-color: var(--texto); box-shadow: 0 10px 30px -18px rgba(13,14,16,.35); }
+.flujo-n { width: 40px; height: 40px; border-radius: 12px; background: var(--naranja-suave); color: var(--naranja-tinta); display: grid; place-items: center; font-weight: 600; font-size: 17px; flex: none; }
+@media (max-width: 900px) { .menu-flujos { padding: 32px 20px 48px; } .flujo { padding: 16px; align-items: flex-start; } }

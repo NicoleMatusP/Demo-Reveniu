@@ -1,9 +1,12 @@
 # Reveniu · Pruebas con usuarios
 
-El prototipo tiene **dos pruebas separadas**, cada una con su propio tiempo:
+Al abrir el link aparece un **menú con los 3 flujos**. Cada uno es una prueba aparte, con su propio tiempo:
 
-- **Prueba 1 · Alta y validación** (flujos 1 y 2): la URL principal.
-- **Prueba 2 · Productos y planes** (flujo 3): la misma URL terminada en `#planes`.
+- **1 · Onboarding y personalización** (`#alta`): del registro a la cuenta lista; al final puede seguir con la validación.
+- **2 · Verificación de empresa** (`#validacion`): parte con una cuenta ya creada y va del SII a la empresa aprobada.
+- **3 · Productos y planes** (`#planes`): crear un plan, publicar su link con UTM y archivar en el catálogo.
+
+En **Ver resultados** (`#moderador`) se elige el flujo arriba y se descargan sus tiempos por separado.
 
 ## Prueba 2 · Productos y planes (`#planes`)
 

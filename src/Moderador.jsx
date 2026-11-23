@@ -15,7 +15,7 @@ export default function Moderador() {
     const v = sessions.map((x) => phaseMs(x, name)).filter((m) => m != null);
     return v.length ? { ms: v.reduce((p, c) => p + c, 0) / v.length, n: v.length } : { ms: null, n: 0 };
   };
-  const estado = (x) => flow === 'planes' ? (x.finishedAt ? <span className="tag ok">Terminó las tareas</span> : x.phases?.catalogo ? <span className="tag due">Catálogo sin terminar</span> : x.phases?.link ? <span className="tag due">Link sin publicar</span> : <span className="t-help">Plan sin terminar</span>)
+  const estado = (x) => flow === 'validacion' ? (x.finishedAt ? <span className="tag ok">Validó la empresa</span> : <span className="t-help">Sin terminar</span>) : flow === 'planes' ? (x.finishedAt ? <span className="tag ok">Terminó las tareas</span> : x.phases?.catalogo ? <span className="tag due">Catálogo sin terminar</span> : x.phases?.link ? <span className="tag due">Link sin publicar</span> : <span className="t-help">Plan sin terminar</span>)
     : phaseMs(x, 'validacion') != null ? <span className="tag ok">Validó la empresa</span>
     : x.phases?.validacion ? <span className="tag due">Validación sin terminar</span>
     : phaseMs(x, 'alta') != null ? <span className="tag neutral">Solo alta</span>

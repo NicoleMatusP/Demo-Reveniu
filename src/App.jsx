@@ -12,7 +12,7 @@ import Planes from './Planes.jsx';
 const CODE = 'K7Q2M9';
 
 export default function App() {
-  const routeOf = () => (location.hash === '#moderador' ? 'moderador' : location.hash === '#planes' ? 'planes' : 'inicio');
+  const routeOf = () => ({ '#moderador': 'moderador', '#planes': 'planes', '#alta': 'inicio', '#validacion': 'validacion' }[location.hash] || 'menu');
   const [route, setRoute] = useState(routeOf);
   const [screen, setScreen] = useState('inicio');
   const [user, setUser] = useState({ nombre: '', apellido: '', correo: '', clave: '' });
@@ -37,6 +37,8 @@ export default function App() {
 
   if (route === 'moderador') return <Moderador />;
   if (route === 'planes') return <Planes />;
+  if (route === 'menu') return <Menu />;
+  if (route === 'validacion' && screen === 'inicio') return <InicioValidacion onStart={(code) => { startSession(code, 'validacion'); setUser(DEMO_USER); setA(DEMO_A); setScreen('validacion'); }} />;
 
   const go = (s) => setScreen(s);
   const next = () => {
@@ -90,11 +92,58 @@ export default function App() {
     case 'lista': return <Lista a={a} name={user.nombre}
       onValidate={() => { endPhase('alta'); startPhase('validacion'); go('validacion'); }}
       onEnd={() => { finishSession(); go('fin'); }} />;
-    case 'validacion': return <Validacion user={user} a={a} onBack={() => go('lista')} onDone={() => go('fin')} />;
+    case 'validacion': return <Validacion user={user} a={a} onBack={() => (route === 'validacion' ? (location.hash = '') : go('lista'))} onDone={() => go('fin')} />;
     case 'pausa': return <Retomar name={user.nombre} idx={idx} onResume={() => { track('retomar'); go(idx === 0 && !a.pais ? 'bienvenida' : 'alta'); }} />;
     case 'fin': return <Fin />;
     default: return null;
   }
+}
+
+const DEMO_USER = { nombre: 'Camila', apellido: 'Rojas', correo: 'camila@academiaandes.cl', clave: '' };
+const DEMO_A = { ...initialAnswers, org: 'Academia Andes', industria: 'Educación online', rol: 'Gerencia general o fundador', pais: 'Chile', presencia: 'Tengo sitio web', sitio: 'academiaandes.cl', quien: 'Personas', productos: ['Inglés B2'] };
+
+/* ---------------- Menú: elegir qué flujo probar ---------------- */
+const FLUJOS = [
+  { href: '#alta', n: '1', t: 'Onboarding y personalización', d: 'Registro, código, preguntas del alta, ficha y celebración. Al final puede seguir con la validación.', m: 'Mide: alta (y validación si la hace)', min: 'Unos 5 minutos' },
+  { href: '#validacion', n: '2', t: 'Verificación de empresa', d: 'Parte con una cuenta ya creada: conexión con el SII, documentos, representante legal, cuenta bancaria y empresa aprobada.', m: 'Mide: validación', min: 'Unos 5 minutos' },
+  { href: '#planes', n: '3', t: 'Productos y planes', d: 'Crear un plan completo con reglas por segmento, publicar su link con UTM y archivar en el catálogo.', m: 'Mide: plan, link y catálogo', min: 'Unos 8 minutos' },
+];
+function Menu() {
+  return (
+    <div className="stage" style={{ background: 'var(--lienzo)', overflow: 'auto' }}>
+      <div className="menu-flujos fade-in">
+        <Logo />
+        <div><h1 className="t-l">¿Qué flujo quieres probar?</h1><p className="t-body" style={{ marginTop: 8 }}>Cada flujo es una prueba aparte: se mide su tiempo por separado y se ve en «Ver resultados».</p></div>
+        <div className="flujos">
+          {FLUJOS.map((f) => (
+            <a key={f.href} className="flujo" href={f.href} onClick={() => setTimeout(() => location.reload())}>
+              <span className="flujo-n">{f.n}</span>
+              <span style={{ flex: 1 }}><span className="t-m" style={{ display: 'block', fontSize: 18 }}>{f.t}</span><span className="t-small" style={{ display: 'block', marginTop: 4 }}>{f.d}</span><span className="t-help" style={{ display: 'block', marginTop: 8 }}>{f.m} · {f.min}</span></span>
+              <ChevronRight size={20} color="var(--texto-2)" />
+            </a>
+          ))}
+        </div>
+        <a className="t-small" href="#moderador" style={{ color: 'var(--texto-2)' }}>Ver resultados de pruebas anteriores</a>
+      </div>
+    </div>
+  );
+}
+
+function InicioValidacion({ onStart }) {
+  const [code, setCode] = useState('');
+  return (
+    <div className="stage" style={{ background: 'var(--lienzo)' }}>
+      <div className="center-card">
+        <Logo />
+        <span className="tag neutral">Flujo 2</span>
+        <h1 className="t-l">Prueba de la verificación de empresa</h1>
+        <p className="t-body">La persona parte con una cuenta ya creada (Academia Andes) y valida su empresa: del SII a la empresa aprobada en Inicio. Para el RUT sirve <b>76.543.210-3</b>.</p>
+        <TextField label="Código del participante" value={code} onChange={setCode} placeholder="Ej: P01" autoFocus onEnter={() => onStart(code)} />
+        <button className="btn btn-primary btn-block" onClick={() => onStart(code)}>Comenzar prueba</button>
+        <a className="t-small" href="#" onClick={() => setTimeout(() => location.reload())} style={{ color: 'var(--texto)', fontWeight: 500 }}>← Volver al menú de flujos</a>
+      </div>
+    </div>
+  );
 }
 
 const TITLES = { registro: 'Registro', codigo: 'Código de verificación', bienvenida: 'Bienvenida', 'pais-no': 'Todavía no llegamos', 'pais-aviso': 'Aviso guardado', cargando: 'Armando tu ficha (carga)', ficha: 'Esto es lo que entendimos', lista: 'Configuración lista', pausa: 'Retomar configuración' };
@@ -106,11 +155,12 @@ function Inicio({ onStart }) {
     <div className="stage" style={{ background: 'var(--lienzo)' }}>
       <div className="center-card">
         <Logo />
-        <h1 className="t-l">Prueba del alta</h1>
+        <span className="tag neutral">Flujo 1</span>
+        <h1 className="t-l">Prueba del onboarding</h1>
         <p className="t-body">Escribe un código para identificar a la persona que hará la prueba. Medimos el tiempo en dos partes: el alta (del registro a la cuenta lista) y la validación de la empresa (del SII a la empresa aprobada).</p>
         <TextField label="Código del participante" value={code} onChange={setCode} placeholder="Ej: P01" autoFocus onEnter={() => onStart(code)} />
         <button className="btn btn-primary btn-block" onClick={() => onStart(code)}>Comenzar prueba</button>
-        <a className="t-small" href="#planes" style={{ color: 'var(--texto)', fontWeight: 500 }}>Ir a la otra prueba: Productos y planes →</a>
+        <a className="t-small" href="#" onClick={() => setTimeout(() => location.reload())} style={{ color: 'var(--texto)', fontWeight: 500 }}>← Volver al menú de flujos</a>
         <a className="t-small" href="#moderador" style={{ color: 'var(--texto-2)' }}>Ver resultados de pruebas anteriores</a>
       </div>
     </div>
@@ -431,7 +481,7 @@ function Fin() {
         <p className="t-body">Terminaste la prueba. Ya puedes avisarle a quien te acompaña.</p>
         <div style={{ display: 'flex', gap: 10 }}>
           <a className="btn btn-secondary" href="#moderador">Ver resultados</a>
-          <button className="btn btn-primary" onClick={() => location.reload()}>Nueva prueba</button>
+          <a className="btn btn-primary" href="#" onClick={() => setTimeout(() => location.reload())}>Elegir otro flujo</a>
         </div>
       </div>
     </div>
